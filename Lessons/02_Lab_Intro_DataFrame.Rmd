@@ -48,7 +48,8 @@ Is the new object you create a data frame?
 ```{r}
 #Option 1
 class(car_speed)
-
+(car_speed)
+#Car speed is not a data frame. Car speed is a vector.
 #Option 2
 is.data.frame(car_speed)
 ```
@@ -115,5 +116,6 @@ df[,1]
 
 #you could also use this notation to delete columns
 df <- df[,-2]
+df
 df
 ```

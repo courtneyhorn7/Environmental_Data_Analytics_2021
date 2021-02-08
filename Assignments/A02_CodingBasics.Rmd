@@ -32,6 +32,7 @@ This exercise accompanies the lessons in Environmental Data Analytics on coding 
 
 ```{r}
 #1. 
+#tinytex::reinstall_tinytex()
 counting_by_four <- seq(1,100,4)
 #In the code above, I am calculating a sequence of numbers from one to 100, increasing by fours. I also assigned the sequence to an object named "counting_by_four".
 
@@ -57,10 +58,8 @@ mean(counting_by_four) > median(counting_by_four)
 
 ```{r}
 #5
-setwd("/Users/courtneyannehorn/Desktop/EDA/EDAfin")
   #a)
 students_vector <- c("Courtney","Taylor","Lollie", "Bear") # character vector
-students
   #b)
 testscore_vector <- c(70,90,85,62) # numeric vector
 testscore_vector
@@ -114,10 +113,16 @@ ifelse(x>50, TRUE, FALSE) #log_exp, if TRUE, if FALSE
 }
 
 #11
+who_passed_results <- function(x){
+ifelse(x>50, TRUE, FALSE) #log_exp, if TRUE, if FALSE
+}
+
 who_passed_results(testscore_vector)
-who_passed_results
 ```
 
 12. QUESTION: Which option of `if` and `else` vs. `ifelse` worked? Why?
 
 > Answer: 'Ifelse' worked. Any of these would have worked. 'Ifelse' is a way to combine 'if' and 'else', and use fewer lines of coding to accomplish the same task. 
+
+
+

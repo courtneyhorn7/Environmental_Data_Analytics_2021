@@ -93,13 +93,20 @@ Question: In the R chunk below, write "dataframe1$". Press `tab` after you type 
 Find a ten-day forecast of temperatures (Fahrenheit) for Durham, North Carolina. Create two vectors, one representing the high temperature on each of the ten days and one representing the low.
 
 ```{r}
-
+forec1 <- c(48,47,44,39,37,37,36,49,45,46)
+forec2 <- c(40,34,29,28,19,24,29,30,27,27)
 ```
 
 Now, create two additional vectors that include the ten-day forecast for the high and low temperatures in Celsius. Use a function to create the two new vectors from your existing ones in Fahrenheit.
 
 ```{r}
+df <- cbind(forec1, forec2)
+df
 
+recipe1 <- function(x){
+  max
+  return(mix)
+}
 ```
 
 Combine your four vectors into a data frame and add informative column names.
@@ -133,9 +140,10 @@ Remember formatting of dates in R:
 # An example is provided to get you started.
 # (code must be uncommented)
 today <- Sys.Date()
+today
 format(today, format = "%B")
-#format(today, format = "")
-#format(today, format = "")
+format(today, format = "%A")
+format(today, format = "%b")
 #format(today, format = "")
 
 ```
@@ -148,7 +156,7 @@ Install and load the package lubridate into your R session. Lubridate offers fas
 More info on lubridate [here][https://cran.r-project.org/web/packages/lubridate/lubridate.pdf].
 
 ```{r DateExercise1}
-#install.packages("lubridate")
+install.packages("lubridate")
 library(lubridate)
 
 #Ex1
@@ -161,8 +169,15 @@ date_obj_today
 str_today <- "21-feb-3"
 #Sine the format is year-month-day we will use function ymd()
 date_obj_today <- ymd(str_today)
-date_obj_today
+#ymd is a lubridate package function
+#are also ydm functions
 
+
+date_obj_today
+class(date_obj_today)
+datetoday <- as.Date(str_today, format="%y-%b-%d")
+#this is how I converted it from a class to a date
+class(datetoday)
 #there are other similar functions ydm(), mdy(), etc
 ```
 

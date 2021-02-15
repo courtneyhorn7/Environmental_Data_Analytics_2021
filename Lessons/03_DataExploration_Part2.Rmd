@@ -18,6 +18,7 @@ editor_options:
 ## Opening discussion: why do we explore our data?
 
 Why is data exploration our first step in analyzing a dataset? What information do we gain? How does data exploration aid in our decision-making for data analysis steps further down the pipeline?
+#answer: its essential to explore our data before digging into it!
 
 ## Import data and view summaries
 
@@ -26,20 +27,30 @@ Why is data exploration our first step in analyzing a dataset? What information 
 getwd()
 
 # 2. Load packages
+install.packages("tidyverse")
 library(tidyverse)
 
 # 3. Import datasets
 USGS.flow.data <- read.csv("./Data/Processed/USGS_Site02085000_Flow_Processed.csv")
 
-#View(USGS.flow.data)
+
+View(USGS.flow.data)
 # Alternate option: click on data frame in Environment tab
+#taking a look at the data frame, such as by using the View command, is always the first thing he does
+
 
 colnames(USGS.flow.data)
 str(USGS.flow.data)
+#str allows us to look at the structure of the data
+
 dim(USGS.flow.data)
+#dim shows you the dimensions
 
 # Check our date column
 class(USGS.flow.data$datetime)
+#when you store your data as a csv, it can't bring dates in as dates! they are always brought in as characters
+#so you must do something to get the computer to recognize it as a date object
+
 
 USGS.flow.data$datetime <- as.Date(USGS.flow.data$datetime, format = "%Y-%m-%d") 
 class(USGS.flow.data$datetime)
@@ -60,30 +71,54 @@ Visualize count data for categorical variables.
 ```{r, fig.height = 3, fig.width = 4}
 ggplot(USGS.flow.data, aes(x = discharge.mean.approval)) +
   geom_bar()
+#this code makes a bar plot
+#aes is short for aesthetics
+#aes specifies the subdata set
+#geom_bar()is the type of geometry that we want to plot
+ggplot(na.omit(USGS.flow.data), aes(x = discharge.mean.approval)) +
+  geom_bar()
+#this takes all of the nas out of the data
+#bar charts are for looking at the counts of records in each category
+
+
 ```
 
 ### Histogram (function: geom_histogram)
 
 Visualize distributions of values for continuous numerical variables. What is happening in each line of code? Insert a comment above each line.
+#instead of categories, we are looking at counts by data intervals. so we supply a numeric variable
 
 ```{r, fig.height = 3, fig.width = 4}
 #
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean))
+#geom_histrogram indicates that we are doing a histogram
 
 #
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean), binwidth = 10)
+#the binwidth = 10 causes the binwidth to not be the default, and to be within 10 of whatever the mean is in 
+#you can specificy the number of bins using binwidth or bins
+#default binwidth is 30
 
-#
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = discharge.mean), bins = 20)
 
-#
+ggplot(USGS.flow.data) +
+  geom_histogram(aes(x = discharge.mean), bins = 1000)
+
+#you should generally do between 5 and 20 bins If you do too many, you may begin showing patterns that aren't reality
 ggplot(USGS.flow.data, aes(x = discharge.mean)) +
   geom_histogram(binwidth = 10) + 
   scale_x_continuous(limits = c(0, 500))
-  
+#scale_x_continuous changes the scale of the x axis  
+
+
+ggplot(USGS.flow.data, aes(x = discharge.mean)) +
+  geom_histogram(binwidth = 100) + 
+  scale_x_continuous(limits = c(0, 500))
+#it seems like higher binwidth values make the bins chunkier
+
 #
 ggplot(USGS.flow.data) +
   geom_histogram(aes(x = gage.height.mean))
@@ -101,11 +136,12 @@ ggplot(USGS.flow.data) +
   geom_freqpoly(aes(x = gage.height.max), bins = 50,  lty = 2) +
   scale_x_continuous(limits = c(0, 10))
 
-#
+#we can set the color to a different categorical value, and we can show two categories of data on the same plot
 ggplot(USGS.flow.data) +
   geom_freqpoly(aes(x = gage.height.mean, color = gage.height.mean.approval), bins = 50) +
   scale_x_continuous(limits = c(0, 10)) +
   theme(legend.position = "top")
+#with the color = thing, it looks at that column, sees how many unique values there are, and gives each unique value a color (assigned red to A records, and blue to P records)
 
 ```
 ### Box-and-whisker plots (function: geom_boxplot, geom_violin)
@@ -119,6 +155,7 @@ A box-and-whisker plot is yet another alternative to histograms (distributions o
 * A line outside of the box representing values falling within 1.5 times the IQR. 
 
 * Points representing outliers, values that fall outside 1.5 times the IQR. 
+#the IQR is the interquartile range
 
 An alternate option is a violin plot, which displays density distributions, somewhat like a hybrid of the box-and-whiskers and the frequency polygon plot.
 
@@ -126,10 +163,20 @@ An alternate option is a violin plot, which displays density distributions, some
 #
 ggplot(USGS.flow.data) +
   geom_boxplot(aes(x = gage.height.mean.approval, y = gage.height.mean))
+#were supplying a numeric value to x, and we supply y with another numeric value
+#the results show the distrbution of mean gage height value if we subset for the ones that have been approved
+#the line shows the median, and the box shows the quantiles
+#so 50% of the values are within the boxes, and the outliers are outside of the boxes
+#
+
 
 #
 ggplot(USGS.flow.data) +
   geom_boxplot(aes(x = gage.height.mean, y = discharge.mean, group = cut_width(gage.height.mean, 1)))
+#here we are showing slices of the data
+#group = cut_width slices the data
+  #what we see is the distribution along the slices of data
+
 
 #
 ggplot(USGS.flow.data) +

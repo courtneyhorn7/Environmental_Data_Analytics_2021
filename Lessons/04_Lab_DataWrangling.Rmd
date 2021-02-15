@@ -57,10 +57,29 @@ NTL.phys.data.JunethruOctober <- filter(NTL.phys.data, daynum %in% c(152:304))
 # Exercise 1: 
 # filter NTL.phys.data for the year 1999
 # what code do you need to use, based on the class of the variable?
+NTL.phys.data$year4
+class(NTL.phys.data$year4)
+NTL.phys.data_1999 <- filter(NTL.phys.data, year4 == 1999)
+summary(NTL.phys.data_1999)
 
+NTL.phys.data.1999<-filter(NTL.phys.data, year4 %in% c("1999"))
+summary(NTL.phys.data.1999)
 
 # Exercise 2: 
 # filter NTL.phys.data for Tuesday Lake from 1990 through 1999.
+
+
+NTL.phys.data.Tues<-filter(lakename %>%in%>% c("Tuesday Lake")) %>%, (NTL.phys.data,year4 %>% in %>% c(1990:1999))
+
+NTL.phys.data.Tues<-filter(NTL.phys.data, year4 %in% c("1990:1999"))
+summary(NTL.phys.data.1999)
+
+NTL.phys.data_Tues1 <- filter(NTL.phys.data, lakename == "Tuesday Lake")
+NTL.phys.data_Tues2 <- filter(NTL.phys.data, year4 == c("1990:1999"))
+summary(NTL.phys.data_Tues2)
+
+summary(NTL.phys.data_1999)
+
 
 
 ```
@@ -81,15 +100,33 @@ NTL.phys.data.processed <-
   select(lakename, sampledate:temperature_C) %>%
   mutate(temperature_F = (temperature_C*9/5) + 32)
 
-#Exercise 3: Using a pipe filter NTL.phys.data for Tuesday Lake from 1990 through 1999 only for July 
 
+  #NTL.phys.data is the initial data set
+
+#Exercise 3: Using a pipe filter NTL.phys.data for Tuesday Lake from 1990 through 1999 only for July 
+NTLData4 <- NTL.phys.data %>% filter(lakename %in% c("Tuesday Lake")) %>% filter(year4 %in% c(1990:1999)) %>% filter (month %in% c("July"))
+
+mutate(temperature_F = (temperature_C*9/5) + 32)
+
+SurTemp <- NTL.phys.data %>% filter(depth == 0) %>% drop_na(temperature_C) %>% summarise(Mean_Surf_T = mean(temperature_C))
+View(SurTemp)
 
 
 
 
 #Exercise 4: Using the data from part 3, a pipe and the summarise() function find the mean surface temperature (hints: you will need to add another filter for depth==0). Make sure you eliminate NAs before computing the means
+NTLData4 <- NTL.phys.data %>% filter(lakename %in% c("Tuesday Lake")) %>% filter(year4 %in% c(1990:1999)) %>% filter (month %in% c("July"))
 
-  
+attempt <- NTL.phys.data %>% mutate(temperature_F = (temperature_C*9/5) + 32)
+attempt
+
+NTLDAta <- NTL.phys.data %>%  filter(lakename %in% c("Tuesday Lake")) %>% filter(year4 %in% c(1990:1999)) %>% mutate(Month = month(sampledate)) %>%  filter (Month %in% c(7))
+View(NTLDAta)
+
+SurTemp <- NTL.phys.data %>% filter(depth == 0) %>% drop_na(temperature_C) %>% summarise(Mean_Surf_T = mean(temperature_C))
+View(SurTemp)
+
+
 ```
 
 ## Gather and Spread
@@ -99,6 +136,12 @@ For gather we will use `pivot_longer` and for spread we will use `pivot_wider`.
 ```{r}
 #Exercise 5: gather irradiance data (measured in the water column and measured on the deck of the sampling boat) into one column using pivot_longer
 
+colnames(NTL.phys.data)
+
+NTLirradiance <- pivot_longer(NTL.nutrient.data.PeterPaul.subset,tn_ug:po4, names_to = "nutrient", values_to = "concentration")
+
+NTLirradiance <- pivot_longer(NTL.phys.data,irradianceWater:irradianceDeck, names_to = "samplinglocation", values_to = "irradiance")
+View(NTLirradiance)
 
 #Exercise 6: spread temperatureC into more than one column based on the depth
 

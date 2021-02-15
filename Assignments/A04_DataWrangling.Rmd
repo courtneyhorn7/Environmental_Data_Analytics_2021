@@ -8,6 +8,8 @@ geometry: margin=2.54cm
 ## OVERVIEW
 
 This exercise accompanies the lessons in Environmental Data Analytics on Data Wrangling 
+#Data wrangling is the process of gathering and transforming data
+
 
 ## Directions
 1. Change "Student Name" on line 3 (above) with your name.

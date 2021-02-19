@@ -1,6 +1,6 @@
 ---
 title: "Assignment 4: Data Wrangling"
-author: "Student Name"
+author: "Courtney Horn"
 output: pdf_document
 geometry: margin=2.54cm
 ---
@@ -27,7 +27,10 @@ The completed exercise is due on Tuesday, Feb 16 @ 11:59pm.
 
 ```{r, message = FALSE}
 #1
-
+library(tidyverse)
+library(lubridate)
+getwd()
+EPA_air_03_2018 <- read.csv()
 #2
 ```
 

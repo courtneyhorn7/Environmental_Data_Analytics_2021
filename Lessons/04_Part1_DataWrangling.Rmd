@@ -23,11 +23,12 @@ Opening discussion: why might we be interested in long-term observations of temp
 
 ```{r, message = FALSE}
 getwd()
-#install.packages(tidyverse)
+install.packages(tidyverse)
 library(tidyverse)
 #install.packages(lubridate)
 library(lubridate)
 NTL.phys.data <- read.csv("./Data/Raw/NTL-LTER_Lake_ChemistryPhysics_Raw.csv", stringsAsFactors = TRUE)
+#stringasfactors = true makes it where summary will work for character entries
 
 colnames(NTL.phys.data)
 head(NTL.phys.data)
@@ -56,6 +57,20 @@ What is the best way to wrangle data? There are multiple ways to arrive at a spe
 
 ```{r, results = "hide"}
 vignette("dplyr")
+#this code gave me the 'Intro to dplyr' page in the help window
+  #Rows
+#filter()
+#slice()
+#arrange()
+
+  #columns
+#select()
+#rename()
+#mutate()
+  #mutate allows you to create a new column based on the values of other columns
+
+  #groups of rows
+#summarise()
 ```
 
 ### Filter
@@ -64,26 +79,36 @@ Filtering allows us to choose certain rows (observations) in our dataset.
 
 Here are the relevant commands used in the `filter` function. Add some notes to designate what these commands mean. 
 `==`
-`!=`
-`<`
+#use the above when trying to compare a value to a specific value
+`!=`use this to check whether variables are diff
+
+`<`check whether less than
 `<=`
 `>`
 `>=`
-`&`
-`|`
+`&`Use this if you need to check multiple conditions and want them both to be true
+`|`use this if you need to check multiple conditions and one or the other should be true
 
 ```{r}
 class(NTL.phys.data$lakeid)
+  #gonna test class v factor a bit - NTL replica is how im testing it
+NTLreplica <- NTL.phys.data
+NTLreplica$lakeid <- as.character(NTLreplica$lakeid)
 class(NTL.phys.data$depth)
+class(NTLreplica$lakeid)
+  #whats the difference between a factor and a character?
+
 
 # matrix filtering
 NTL.phys.data.surface1 <- NTL.phys.data[NTL.phys.data$depth == 0,]
+  #0 is before the comma bc we filtering by rows
 
 # dplyr filtering
 NTL.phys.data.surface2 <- filter(NTL.phys.data, depth == 0)
 NTL.phys.data.surface3 <- filter(NTL.phys.data, depth < 0.25)
 
 # Did the methods arrive at the same result?
+    #all of the above methods got to the same result
 head(NTL.phys.data.surface1)
 dim(NTL.phys.data.surface1)
 head(NTL.phys.data.surface2)
@@ -94,19 +119,23 @@ dim(NTL.phys.data.surface3)
 # Choose multiple conditions to filter
 summary(NTL.phys.data$lakename)
 NTL.phys.data.PeterPaul1 <- filter(NTL.phys.data, lakename == "Paul Lake" | lakename == "Peter Lake")
+  #here, we are selecting all instances of Paul Lake OR Peter Lake
 NTL.phys.data.PeterPaul2 <- filter(NTL.phys.data, lakename != "Central Long Lake" & 
                                      lakename != "Crampton Lake" & lakename != "East Long Lake" &
                                      lakename != "Hummingbird Lake" & lakename != "Tuesday Lake" &
                                      lakename != "Ward Lake" & lakename != "West Long Lake")
+  #here, we are selecting for rows which do not have the above lake name values
 NTL.phys.data.PeterPaul3 <- filter(NTL.phys.data, lakename %in% c("Paul Lake", "Peter Lake"))
-
+ # %in% is useful for selecting based off of more than two elements
+    #all of the filtering we did above is for character variables
 # Choose a range of conditions of a numeric or integer variable
 summary(NTL.phys.data$daynum)
 NTL.phys.data.JunethruOctober1 <- filter(NTL.phys.data, daynum > 151 & daynum < 305)
+#we choose 151, because 152 is the first day of June, and we want it to be included
 NTL.phys.data.JunethruOctober2 <- filter(NTL.phys.data, daynum > 151, daynum < 305)
 NTL.phys.data.JunethruOctober3 <- filter(NTL.phys.data, daynum >= 152 & daynum <= 304)
 NTL.phys.data.JunethruOctober4 <- filter(NTL.phys.data, daynum %in% c(152:304))
-
+  #%in% is like a value matching operator
 # Exercise: 
 # filter NTL.phys.data for the year 1999
 # what code do you need to use, based on the class of the variable?

@@ -145,30 +145,14 @@ write.csv(EPA_air_PM25_2019, row.names = FALSE,
 
 ```{r}
 #7
-#77. Combine the four datasets with `rbind`. Make sure your column names are identical prior to running this code. 
-
-colnames(EPA_air_03_2018)
-colnames(EPA_air_03_2019)
-colnames(EPA_air_03_2018) == colnames(EPA_air_03_2019)
-colnames(EPA_air_PM25_2018) == colnames(EPA_air_03_2019)
-colnames(EPA_air_PM25_2018) == colnames(EPA_air_PM25_2019)
-colnames(EPA_air_PM25_2019)
-
-#all column names are the same
-
-#### rbind
-
-#The Niwot Ridge litter dataset, when downloaded from NEON, comes packaged with each month as a different .csv file. If we want to analyze the dataset as a single data frame, we need to combine each of these files. 
-
-#rbind binds elements by row
-
-
-Litter.2019 <- rbind(Litter.June2016, Litter.July2016, Litter.August2016)
-
-
 air_dat1 <- rbind(EPA_air_03_2018, EPA_air_03_2019)
 air_dat2 <-rbind(EPA_air_PM25_2018, EPA_air_PM25_2019)
+  #just gotta figure out how to change that one col name here
+colnames(air_dat1) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE") 
+colnames(air_dat2) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE")
 air_dat3 <- rbind(air_dat1, air_dat2)
+
+
 
 
 #8

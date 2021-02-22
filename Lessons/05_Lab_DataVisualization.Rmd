@@ -34,7 +34,9 @@ ggsave("./Output/Plot_text.jpg",Plot_text, height = 4, width = 6, units = "in", 
 ```{r, message = FALSE, warning = FALSE}
 getwd()
 library(tidyverse)
+#install.packages("ggridges")
 library(ggridges)
+#for building gridge plots
 library(viridis)
 library(RColorBrewer)
 library(colormap)
@@ -55,21 +57,41 @@ Exercise: build your own scatterplots of PeterPaul.chem.nutrients
 
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
 
+View(PeterPaul.chem.nutrients)
+colnames(PeterPaul.chem.nutrients)
+ggplot(PeterPaul.chem.nutrients, aes(x = sampledate, y = temperature_C)) + 
+  geom_point()
+
+
+
+
 # 1. 
 # Plot surface temperatures by day of  year. 
 # Color your points by year, and facet by lake in two rows.
 # Change the ylab name
 
 
+E1 <- ggplot(PeterPaul.chem.nutrients, aes(x=sampledate,y=temperature_C,shape=as.factor(year4)))+
+  geom_point()+
+  facet_wrap(vars(lakename), nrow=2)+
+  ylab(expression("surface_temperature_c"))
+print(E1)
+
+colnames(PeterPaul.chem.nutrients)
+
 #2. 
 # Plot temperature by date. Color your points by depth.
 # Change the size of your point to 0.5
 # Change the color palette to magma and play with direction (+- 1), which one makes more sense?
 # Change x axis to include marker/labels every 5 years
+colnames(PeterPaul.chem.nutrients)
+
+ggplot(PeterPaul.chem.nutrients, aes(y=temperature_c, x=sampledate, color=depth))+
+  geom_point(size = 0.5) +
+  scale_color_viridis(option = "magma", direction = -1) + xlab("Date")
 
 
-
-
+ggplot(PeterPaul.chem.nutrients, aes(y=temperature_c, x=sampledate, color=depth)) + scale_color_viridis(option = "magma", direction = -1)
 ```
 ## Plotting the relationship between two continuous variables: Scatterplot
 
@@ -83,7 +105,19 @@ Exercise: Plot relationships between air quality measurements
 # Add a line of best fit for the linear regression of these variables.
 
 
+  ##my attempt that didn't work great but worked a bit
+plot3 <-
+  ggplot(EPAair, aes(x = PM2.5, y = Ozone)) +
+  geom_point(aes(color = SITE_LATITUDE, alpha = 0.1))
+print(plot3)
 
+  ## Dr Limas code
+EPAair.Ex3 <-
+  ggplot(EPAair,aes(x=PM2.5, y=Ozone)) + 
+  geom_point(aes(color=SITE_LATITUDE), alpha = 0.5) + 
+  geom_smooth(method = lm) +
+  ylab(expression("0"[3]* "AQI Value"))
+print(EPAair.Ex3)
 
 ```
 

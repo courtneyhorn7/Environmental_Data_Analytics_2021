@@ -30,7 +30,10 @@ The completed exercise is due on Tuesday, Feb 16 @ 11:59pm.
 library(tidyverse)
 library(lubridate)
 getwd()
-EPA_air_03_2018 <- read.csv()
+EPA_air_03_2018 <- read.csv("../Data/Raw/EPAair_O3_NC2018_raw.csv",stringsAsFactors = TRUE)
+EPA_air_03_2019 <- read.csv("../Data/Raw/EPAair_O3_NC2019_raw.csv",stringsAsFactors = TRUE)
+EPA_air_PM25_2018 <- read.csv("../Data/Raw/EPAair_PM25_NC2018_raw.csv",stringsAsFactors = TRUE)
+EPA_air_PM25_2019 <- read.csv("../Data/Raw/EPAair_PM25_NC2019_raw.csv",stringsAsFactors = TRUE)
 #2
 ```
 
@@ -41,16 +44,91 @@ EPA_air_03_2018 <- read.csv()
 6. Save all four processed datasets in the Processed folder. Use the same file names as the raw files but replace "raw" with "processed".
 
 ```{r}
+colnames(EPA_air_03_2018)
+  #Date column
 #3
+  #EPA_air_03_2018
+class(EPA_air_03_2018$Date)
+head(EPA_air_03_2018$Date)
+EPA_air_03_2018$Date <- as.Date(EPA_air_03_2018$Date, format = "%m/%d/%Y")
+class(EPA_air_03_2018$Date)
+head(EPA_air_03_2018$Date)
+
+  #EPA_air_03_2019
+class(EPA_air_03_2019$Date)
+head(EPA_air_03_2019$Date)
+EPA_air_03_2019$Date <- as.Date(EPA_air_03_2019$Date, format = "%m/%d/%Y")
+class(EPA_air_03_2019$Date)
+head(EPA_air_03_2019$Date)
+
+  #EPA_air_PM25_2018
+class(EPA_air_PM25_2018$Date)
+head(EPA_air_PM25_2018$Date)
+EPA_air_PM25_2018$Date <- as.Date(EPA_air_PM25_2018$Date, format = "%m/%d/%Y")
+class(EPA_air_PM25_2018$Date)
+head(EPA_air_PM25_2018$Date)
+
+   #EPA_air_PM25_2019
+class(EPA_air_PM25_2019$Date)
+head(EPA_air_PM25_2019$Date)
+EPA_air_PM25_2019$Date <- as.Date(EPA_air_PM25_2019$Date, format = "%m/%d/%Y")
+class(EPA_air_PM25_2019$Date)
+head(EPA_air_PM25_2019$Date)
+
 
 #4
+  #EPA_air_03_2018
+EPA_air_03_2018_subset <- select(EPA_air_03_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+colnames(EPA_air_03_2018_subset)
 
+  #EPA_air_03_2019
+EPA_air_03_2019_subset <- select(EPA_air_03_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+colnames(EPA_air_03_2019_subset)
+
+ #EPA_air_PM25_2018
+EPA_air_PM25_2018_subset <- select(EPA_air_PM25_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+colnames(EPA_air_PM25_2018_subset)
+
+ #EPA_air_PM25_2019
+EPA_air_PM25_2019_subset <- select(EPA_air_PM25_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+colnames(EPA_air_PM25_2019_subset)
+
+#Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE
 #5
+  #EPA_air_PM25_2018
+colnames(EPA_air_PM25_2018)
+head(EPA_air_PM25_2018$AQS_PARAMETER_DESC)
+EPA_air_PM25_2018$AQS_PARAMETER_DESC <- c("PM2.5")
+
+
+  #EPA_air_PM25_2019
+head(EPA_air_PM25_2019$AQS_PARAMETER_DESC)
+EPA_air_PM25_2019$AQS_PARAMETER_DESC <- c("PM2.5")
+
 
 #6
+  #6 6. Save all four processed datasets in the Processed folder. Use the same file names as the raw files but replace "raw" with "processed".
+write.csv(EPA_air_03_2018, row.names = FALSE, 
+          file ="../Data/Processed/EPAair_O3_NC2018_processed.csv")
+
+write.csv(EPA_air_03_2019, row.names = FALSE, 
+          file ="../Data/Processed/EPAair_O3_NC2019_processed.csv")
+
+write.csv(EPA_air_PM25_2018, row.names = FALSE, 
+          file ="../Data/Processed/EPAair_PM25_NC2018_processed.csv")
+
+write.csv(EPA_air_PM25_2019, row.names = FALSE, 
+          file ="../Data/Processed/EPAair_PM25_NC2019_processed.csv")
 
 ```
-
+%d  day as number (0-31)
+%m  month (00-12, can be e.g., 01 or 1)
+%y  2-digit year
+%Y  4-digit year
+%a  abbreviated weekday
+%A  unabbreviated weekday
+%b  abbreviated month
+%B  unabbreviated month
 
 ## Combine datasets
 7. Combine the four datasets with `rbind`. Make sure your column names are identical prior to running this code. 
@@ -67,6 +145,31 @@ EPA_air_03_2018 <- read.csv()
 
 ```{r}
 #7
+#77. Combine the four datasets with `rbind`. Make sure your column names are identical prior to running this code. 
+
+colnames(EPA_air_03_2018)
+colnames(EPA_air_03_2019)
+colnames(EPA_air_03_2018) == colnames(EPA_air_03_2019)
+colnames(EPA_air_PM25_2018) == colnames(EPA_air_03_2019)
+colnames(EPA_air_PM25_2018) == colnames(EPA_air_PM25_2019)
+colnames(EPA_air_PM25_2019)
+
+#all column names are the same
+
+#### rbind
+
+#The Niwot Ridge litter dataset, when downloaded from NEON, comes packaged with each month as a different .csv file. If we want to analyze the dataset as a single data frame, we need to combine each of these files. 
+
+#rbind binds elements by row
+
+
+Litter.2019 <- rbind(Litter.June2016, Litter.July2016, Litter.August2016)
+
+
+air_dat1 <- rbind(EPA_air_03_2018, EPA_air_03_2019)
+air_dat2 <-rbind(EPA_air_PM25_2018, EPA_air_PM25_2019)
+air_dat3 <- rbind(air_dat1, air_dat2)
+
 
 #8
 
@@ -96,3 +199,94 @@ EPA_air_03_2018 <- read.csv()
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
 > Answer: 
+
+
+Appendix
+```{r, eval=FALSE, echo=TRUE}
+          ##3
+  #EPA_air_03_2018
+class(EPA_air_03_2018$Date)
+head(EPA_air_03_2018$Date)
+EPA_air_03_2018$Date <- as.Date(EPA_air_03_2018$Date, format = "%m/%d/%Y")
+class(EPA_air_03_2018$Date)
+head(EPA_air_03_2018$Date)
+
+  #EPA_air_03_2019
+class(EPA_air_03_2019$Date)
+head(EPA_air_03_2019$Date)
+EPA_air_03_2019$Date <- as.Date(EPA_air_03_2019$Date, format = "%m/%d/%Y")
+class(EPA_air_03_2019$Date)
+head(EPA_air_03_2019$Date)
+
+  #EPA_air_PM25_2018
+class(EPA_air_PM25_2018$Date)
+head(EPA_air_PM25_2018$Date)
+EPA_air_PM25_2018$Date <- as.Date(EPA_air_PM25_2018$Date, format = "%m/%d/%Y")
+class(EPA_air_PM25_2018$Date)
+head(EPA_air_PM25_2018$Date)
+
+   #EPA_air_PM25_2019
+class(EPA_air_PM25_2019$Date)
+head(EPA_air_PM25_2019$Date)
+EPA_air_PM25_2019$Date <- as.Date(EPA_air_PM25_2019$Date, format = "%m/%d/%Y")
+class(EPA_air_PM25_2019$Date)
+head(EPA_air_PM25_2019$Date)
+
+          ##4
+  #EPA_air_03_2018
+EPA_air_03_2018_subset <- select(EPA_air_03_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+colnames(EPA_air_03_2018_subset)
+
+  #EPA_air_03_2019
+EPA_air_03_2019_subset <- select(EPA_air_03_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+colnames(EPA_air_03_2019_subset)
+
+ #EPA_air_PM25_2018
+EPA_air_PM25_2018_subset <- select(EPA_air_PM25_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+colnames(EPA_air_PM25_2018_subset)
+
+ #EPA_air_PM25_2019
+EPA_air_PM25_2019_subset <- select(EPA_air_PM25_2019, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)
+colnames(EPA_air_PM25_2019_subset)
+
+
+#5
+  #EPA_air_PM25_2018
+colnames(EPA_air_PM25_2018)
+head(EPA_air_PM25_2018$AQS_PARAMETER_DESC)
+EPA_air_PM25_2018$AQS_PARAMETER_DESC <- c("PM2.5")
+
+
+  #EPA_air_PM25_2019
+head(EPA_air_PM25_2019$AQS_PARAMETER_DESC)
+EPA_air_PM25_2019$AQS_PARAMETER_DESC <- c("PM2.5")
+
+
+#6
+  #6 6. Save all four processed datasets in the Processed folder. Use the same file names as the raw files but replace "raw" with "processed".
+write.csv(EPA_air_03_2018, row.names = FALSE, 
+          file ="../Data/Processed/EPAair_O3_NC2018_processed.csv")
+
+write.csv(EPA_air_03_2019, row.names = FALSE, 
+          file ="../Data/Processed/EPAair_O3_NC2019_processed.csv")
+
+write.csv(EPA_air_PM25_2018, row.names = FALSE, 
+          file ="../Data/Processed/EPAair_PM25_NC2018_processed.csv")
+
+write.csv(EPA_air_PM25_2019, row.names = FALSE, 
+          file ="../Data/Processed/EPAair_PM25_NC2019_processed.csv")
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+

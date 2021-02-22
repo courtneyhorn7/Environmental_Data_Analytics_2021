@@ -23,7 +23,7 @@ Opening discussion: why might we be interested in long-term observations of temp
 
 ```{r, message = FALSE}
 getwd()
-install.packages(tidyverse)
+#install.packages(tidyverse)
 library(tidyverse)
 #install.packages(lubridate)
 library(lubridate)
@@ -39,6 +39,8 @@ dim(NTL.phys.data)
 class(NTL.phys.data$sampledate)
 # Format sampledate as date
 NTL.phys.data$sampledate <- as.Date(NTL.phys.data$sampledate, format = "%m/%d/%y")
+head(NTL.phys.data$sampledate)
+  #the output of date is year - month -date order
 ```
 
 ## Data Wrangling
@@ -157,6 +159,7 @@ Arranging allows us to change the order of rows in our dataset. By default, the 
 ```{r}
 NTL.phys.data.depth.ascending <- arrange(NTL.phys.data, depth)
 NTL.phys.data.depth.descending <- arrange(NTL.phys.data, desc(depth))
+#phys.data is the column we want to arrange by
 
 # Exercise: 
 # Arrange NTL.phys.data by temperature, in descending order. 
@@ -170,6 +173,8 @@ Selecting allows us to choose certain columns (variables) in our dataset.
 
 ```{r}
 NTL.phys.data.temps <- select(NTL.phys.data, lakename, sampledate:temperature_C)
+#since the three columns we are getting are consequtive columns (sample date, depth, temp), we can do this (sampledate:temperature_C)
+
 
 ```
 ### Mutate
@@ -189,13 +194,17 @@ A package that makes coercing date much easier is `lubridate`. A guide to the pa
 ```{r}
 # add a month column to the dataset
 NTL.phys.data.PeterPaul1 <- mutate(NTL.phys.data.PeterPaul1, month = month(sampledate)) 
+#the lubridate month function can extract the month from a date value
 
 # reorder columns to put month with the rest of the date variables
 NTL.phys.data.PeterPaul1 <- select(NTL.phys.data.PeterPaul1, lakeid:daynum, month, sampledate:comments)
+#select can be used to pull columns from a data set or to change the order of the columns
 
 # find out the start and end dates of the dataset
+#the interval function creates an interval object something with specific start and end dates
 interval(NTL.phys.data.PeterPaul1$sampledate[1], NTL.phys.data.PeterPaul1$sampledate[21613])
-interval(first(NTL.phys.data.PeterPaul1$sampledate), last(NTL.phys.data.PeterPaul1$sampledate))
+#the first row will be the first observed date, and the last row will be the last observed date
+interval(sampledate:temperature_C, last(NTL.phys.data.PeterPaul1$sampledate))
 ```
 
 

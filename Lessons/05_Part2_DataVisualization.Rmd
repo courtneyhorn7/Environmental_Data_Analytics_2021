@@ -38,26 +38,26 @@ Often, we will want to change multiple visual aspects of a plot. Ggplot comes wi
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
 O3plot <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone)) 
-print(O3plot)
+print(O3plot) #this also has the default ggplot theme
 
 O3plot1 <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone)) +
-  theme_gray()
+  theme_gray() #default ggplot theme
 print(O3plot1)
 
 O3plot2 <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone)) +
-  theme_bw()
-print(O3plot2)
+  theme_bw() #classic dark on light
+print(O3plot2) 
 
 O3plot3 <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone)) +
-  theme_light()
+  theme_light() #grey lines/axes on white background
 print(O3plot3)
 
 O3plot4 <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone)) +
-  theme_classic()
+  theme_classic() #classic looking theme, with x and y axis and no gridline
 print(O3plot4)
 ```
 
@@ -68,27 +68,30 @@ Notice that some aspects of your graph have not been adjusted, including:
 * legend position and justification
 
 If you would like to set a common theme across all plots in your analysis session, you may define a theme and call up that theme for each graph. This eliminates the need to add multiple lines of code in each plot. 
-
+  #the theme set up allows you to change multiple aspects of the plot
 ```{r, fig.height = 3, fig.width = 4, warning = FALSE}
 mytheme <- theme_classic(base_size = 14) +
   theme(axis.text = element_text(color = "black"), 
         legend.position = "top") #alternative: legend.position + legend.justification
-
+#the default legend location for ggplot is right
+#legend justification affects right, center , or left alignment
 # options: call the theme in each plot or set the theme at the start. 
 
 O3plot5 <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone)) +
-  mytheme
+  mytheme #setting theme within plot environment
 print(O3plot5)  
+#now text is all black and larger
 
-theme_set(mytheme)
+theme_set(mytheme) #set theme for all subsequent plots
+#then you can run all plots and the theme will happen, even when you don't specify the theme within the plot
 
 O3plot6 <- ggplot(EPAair) +
   geom_point(aes(x = Date, y = Ozone))
 print(O3plot6)  
 
 ```
-
+  
 ### Adjusting multiple components of your plots
 
 While the theme allows us to set multiple aspects of plots, ggplot allows us to adjust other parts of plots outside of the theme. 
@@ -106,6 +109,18 @@ O3plot7 <- ggplot(EPAair, aes(x = Date, y = Ozone)) +
   ylab(expression("O"[3]* " AQI Value")) +
   theme(axis.text.x = element_text(angle = 45,  hjust = 1))
 print(O3plot7)  
+#hlines are horizontal, and this one crosses at 50. lty specifies the type of the line
+#this here is a scatter plot, and the points rep the data site
+#made point size 1.5
+#x is being printed on jan 2020, and y printed at 45
+#text will be bold, added the word good
+#why are we doing as.Date here?
+#want month to be abbreviated format (%b), want year to be two digits
+
+
+
+ #*what should you specify within the aes?
+
 
 ```
 
@@ -151,10 +166,12 @@ nationalparkcolors (package)
 
 * https://github.com/katiejolly/nationalparkcolors
 
+#try to choose palletes to communicate what you want your audience to percieve
+
 ```{r, warning = FALSE}
-# install.packages("viridis")
-# install.packages("RColorBrewer")
-# install.packages("colormap")
+ install.packages("viridis")
+install.packages("RColorBrewer")
+ install.packages("colormap")
 library(viridis)
 library(RColorBrewer)
 library(colormap)
@@ -168,14 +185,14 @@ NvsP <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth, shape = lakename)) +
   geom_point() 
 print(NvsP)
-
+#here, we are plotting two nutrients and categorizing them by depth and changing shape of points
 # let's first make the plot look better.
 # change your axis labels to reflect TN and TP in micrograms per liter.
 # change your legend labels
 NvsP2 <-
   ggplot(PeterPaul.chem.nutrients, aes(x = tp_ug, y = tn_ug, color = depth, shape = lakename)) +
   geom_point(alpha = 0.7, size = 2.5) +
-  #labs() + # change your legend labels here
+  ylab("ugh") + xlab("UGH")# change your legend labels here
   scale_shape_manual(values = c(15, 17)) +
   #scale_color_distiller(palette = "Blues", direction = 1) + # use scale_color_brewer for discrete variables
   scale_color_viridis(option = "magma", direction = -1) +
@@ -187,6 +204,11 @@ print(NvsP2)
 # remove your x axis label
 # change labels for nutrients in the legend
 # try out the different color palette options and choose one (or edit)
+#we changed shape of points, and since we have two variables, we have to choose two shapes (15 and 17)
+#we used magma option for depth
+#legend now on right
+#legend is now biggr (size 12)
+#we changed the shapes
 Nutrientplot <-
   ggplot(PeterPaul.chem.nutrients.gathered, aes(x = lakename, y = concentration, color = nutrient)) +
   geom_boxplot() +
@@ -206,9 +228,12 @@ In situations where facets don't fill our needs to place multiple plots on a pag
 A useful guide for aligning plots by axis can be found here: https://wilkelab.org/cowplot/articles/aligning_plots.html
 
 ```{r, fig.height = 7, fig.width = 6}
-#install.packages("cowplot")
+install.packages("cowplot")
 library(cowplot)
+#can use cowplot package to put multiple plots on one page
 plot_grid(NvsP2, Nutrientplot, nrow = 2, align = 'h', rel_heights = c(1.25, 1))
+#plot grid allows you to divide your plot window into as many cells as you want
+#rel_heights adjusts the space given to each plot. Can size your plots
 
 ```
 
@@ -222,6 +247,7 @@ The `ggsave` function allows you to save plots in jpg, png, eps, pdf, tiff, and 
 
 For example: 
 `ggsave("./Output/PMplot.jpg", PMplot.faceted, height = 4, width = 6, units = "in", dpi = 300)`
+#specify file name with relative path, width, heigh, and somethin else, resolution
 
 ## Visualization challenge
 

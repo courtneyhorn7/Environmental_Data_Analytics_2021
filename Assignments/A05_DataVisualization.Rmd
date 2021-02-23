@@ -1,6 +1,6 @@
 ---
 title: "Assignment 5: Data Visualization"
-author: "Student Name"
+author: "Courtney Horn"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -34,15 +34,44 @@ the processed data file for the Niwot Ridge litter dataset.
 
 ```{r}
 #1 
+library(tidyverse)
+library(cowplot)
+library(lubridate)
+getwd()
+NTL_lake_chem_nut <-read.csv("./Data/Processed/NTL-LTER_Lake_Chemistry_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+#NTL_lake_chem_phys <- read.csv("Data/Processed/NTL-LTER_Lake_ChemistryPhysics_PeterPaul_Processed.csv", stringsAsFactors = TRUE) 
+#NTL_nut_Pete <- read.csv("Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaul_Processed.csv", stringsAsFactors = TRUE) 
+lakenut <- NTL_lake_chem_nut
+NTL_nut_Pete_gath <- read.csv("./Data/Processed/NTL-LTER_Lake_Nutrients_PeterPaulGathered_Processed.csv", stringsAsFactors = TRUE)
+#NTL_lake_sum_Pete <- read.csv("Data/Processed/NTL-LTER_Lake_Summaries_PeterPaul_Processed.csv", stringsAsFactors = TRUE)
+lakenut_gath <- NTL_nut_Pete_gath
+Niwot_litter <-read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE) 
+
 
 #2 
+colnames(lakenut)
+class(lakenut$sampledate)
+head(lakenut$sampledate)
+lakenut$sampledat <- as.Date(lakenut$sampledate, format = "%Y-%m-%d")
 
+colnames(lakenut_gath)
+class(lakenut_gath$sampledate)
+head(lakenut_gath$sampledate)
+lakenut_gath$sampledat <- as.Date(lakenut_gath$sampledate, format = "%Y-%m-%d")
 ```
 ## Define your theme
 3. Build a theme and set it as your default theme.
 
 ```{r}
+mytheme <- theme_classic(base_size = 10) +
+  theme(axis.text = element_text(color = "blue"), 
+        legend.position = "top") #alternative: legend.position + legend.justification
+#the default legend location for ggplot is right
+#legend justification affects right, center , or left alignment
+# options: call the theme in each plot or set the theme at the start.
 
+theme_set(mytheme) #set theme for all subsequent plots
+#then you can run all plots and the theme will happen, even when you don't specify the theme within the plot
 
 ```
 
@@ -54,12 +83,24 @@ For numbers 4-7, create ggplot graphs and adjust aesthetics to follow best pract
 ```{r}
 
 
+
 ```
 
 
 5. [NTL-LTER] Make three separate boxplots of (a) temperature, (b) TP, and (c) TN, with month as the x axis and lake as a color aesthetic. Then, create a cowplot that combines the three graphs. Make sure that only one legend is present and that graph axes are aligned.
 
 ```{r}
+#a) temp box plot
+# Box and whiskers plot
+#so these are better than bar plots
+
+Tempplot3 <-
+  ggplot(PeterPaul.chem.nutrients.gathered, aes(x = lakename, y = concentration)) +
+  geom_boxplot(aes(color = nutrient)) # Why didn't we use "fill"?
+print(Nutrientplot3)
+#seperated by lake name bc chose lake name on x axis
+#color is countour of shape, while fill is fill of boxplot? always yse color instead of fill for boxp lot
+#can see the box for some of these nutrients - makes it hard to interpret
 
 
 ```

@@ -44,36 +44,36 @@ EPA_air_PM25_2019 <- read.csv("../Data/Raw/EPAair_PM25_NC2019_raw.csv",stringsAs
 6. Save all four processed datasets in the Processed folder. Use the same file names as the raw files but replace "raw" with "processed".
 
 ```{r}
-colnames(EPA_air_03_2018)
+#olnames(EPA_air_03_2018)
   #Date column
 #3
   #EPA_air_03_2018
-class(EPA_air_03_2018$Date)
-head(EPA_air_03_2018$Date)
+#class(EPA_air_03_2018$Date)
+#head(EPA_air_03_2018$Date)
 EPA_air_03_2018$Date <- as.Date(EPA_air_03_2018$Date, format = "%m/%d/%Y")
-class(EPA_air_03_2018$Date)
-head(EPA_air_03_2018$Date)
+#class(EPA_air_03_2018$Date)
+#head(EPA_air_03_2018$Date)
 
   #EPA_air_03_2019
-class(EPA_air_03_2019$Date)
-head(EPA_air_03_2019$Date)
+#class(EPA_air_03_2019$Date)
+#head(EPA_air_03_2019$Date)
 EPA_air_03_2019$Date <- as.Date(EPA_air_03_2019$Date, format = "%m/%d/%Y")
-class(EPA_air_03_2019$Date)
-head(EPA_air_03_2019$Date)
+#class(EPA_air_03_2019$Date)
+#head(EPA_air_03_2019$Date)
 
   #EPA_air_PM25_2018
-class(EPA_air_PM25_2018$Date)
-head(EPA_air_PM25_2018$Date)
+#class(EPA_air_PM25_2018$Date)
+#head(EPA_air_PM25_2018$Date)
 EPA_air_PM25_2018$Date <- as.Date(EPA_air_PM25_2018$Date, format = "%m/%d/%Y")
-class(EPA_air_PM25_2018$Date)
-head(EPA_air_PM25_2018$Date)
+#class(EPA_air_PM25_2018$Date)
+#head(EPA_air_PM25_2018$Date)
 
    #EPA_air_PM25_2019
-class(EPA_air_PM25_2019$Date)
-head(EPA_air_PM25_2019$Date)
+#class(EPA_air_PM25_2019$Date)
+#head(EPA_air_PM25_2019$Date)
 EPA_air_PM25_2019$Date <- as.Date(EPA_air_PM25_2019$Date, format = "%m/%d/%Y")
-class(EPA_air_PM25_2019$Date)
-head(EPA_air_PM25_2019$Date)
+#class(EPA_air_PM25_2019$Date)
+#head(EPA_air_PM25_2019$Date)
 
 
 #4
@@ -94,42 +94,41 @@ EPA_air_PM25_2019_subset <- select(EPA_air_PM25_2019, Date, DAILY_AQI_VALUE, Sit
 colnames(EPA_air_PM25_2019_subset)
 
 #Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE
+
+
 #5
   #EPA_air_PM25_2018
-colnames(EPA_air_PM25_2018)
-head(EPA_air_PM25_2018$AQS_PARAMETER_DESC)
+#colnames(EPA_air_PM25_2018)
+#head(EPA_air_PM25_2018$AQS_PARAMETER_DESC)
 EPA_air_PM25_2018$AQS_PARAMETER_DESC <- c("PM2.5")
-
+#colnames(EPA_air_PM25_2018)
+#head(EPA_air_PM25_2018_subset$AQS_PARAMETER_DESC)
+EPA_air_PM25_2018_subset$AQS_PARAMETER_DESC <- c("PM2.5")
 
   #EPA_air_PM25_2019
-head(EPA_air_PM25_2019$AQS_PARAMETER_DESC)
+#head(EPA_air_PM25_2019$AQS_PARAMETER_DESC)
 EPA_air_PM25_2019$AQS_PARAMETER_DESC <- c("PM2.5")
+#head(EPA_air_PM25_2019$AQS_PARAMETER_DESC)
+EPA_air_PM25_2019_subset$AQS_PARAMETER_DESC <- c("PM2.5")
+#head(EPA_air_PM25_2019_subset$AQS_PARAMETER_DESC)
 
 
 #6
   #6 6. Save all four processed datasets in the Processed folder. Use the same file names as the raw files but replace "raw" with "processed".
-write.csv(EPA_air_03_2018, row.names = FALSE, 
+write.csv(EPA_air_03_2018_subset, row.names = FALSE, 
           file ="../Data/Processed/EPAair_O3_NC2018_processed.csv")
 
-write.csv(EPA_air_03_2019, row.names = FALSE, 
+write.csv(EPA_air_03_2019_subset, row.names = FALSE, 
           file ="../Data/Processed/EPAair_O3_NC2019_processed.csv")
 
-write.csv(EPA_air_PM25_2018, row.names = FALSE, 
+write.csv(EPA_air_PM25_2018_subset, row.names = FALSE, 
           file ="../Data/Processed/EPAair_PM25_NC2018_processed.csv")
 
-write.csv(EPA_air_PM25_2019, row.names = FALSE, 
+write.csv(EPA_air_PM25_2019_subset, row.names = FALSE, 
           file ="../Data/Processed/EPAair_PM25_NC2019_processed.csv")
 
-```
-%d  day as number (0-31)
-%m  month (00-12, can be e.g., 01 or 1)
-%y  2-digit year
-%Y  4-digit year
-%a  abbreviated weekday
-%A  unabbreviated weekday
-%b  abbreviated month
-%B  unabbreviated month
 
+```
 ## Combine datasets
 7. Combine the four datasets with `rbind`. Make sure your column names are identical prior to running this code. 
 8. Wrangle your new dataset with a pipe function (%>%) so that it fills the following conditions: 
@@ -145,78 +144,64 @@ write.csv(EPA_air_PM25_2019, row.names = FALSE,
 
 ```{r}
 #7
-air_dat1 <- rbind(EPA_air_03_2018, EPA_air_03_2019)
-air_dat2 <-rbind(EPA_air_PM25_2018, EPA_air_PM25_2019)
+#colnames(EPA_air_03_2018_subset) <- colnames(EPA_air_PM25_2018_subset)
+colnames(EPA_air_03_2019_subset) <- colnames(EPA_air_PM25_2018_subset)
+colnames(EPA_air_PM25_2019_subset) <- colnames(EPA_air_PM25_2018_subset)
+air_dat_comb <-rbind(EPA_air_03_2018_subset, EPA_air_03_2019_subset, EPA_air_PM25_2018_subset, EPA_air_PM25_2019_subset)
+
+#air_dat1 <- rbind(EPA_air_03_2018, EPA_air_03_2019)
+#air_dat2 <-rbind(EPA_air_PM25_2018, EPA_air_PM25_2019)
   #just gotta figure out how to change that one col name here
-colnames(air_dat1) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE") 
-colnames(air_dat2) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE")
-air_dat_comb <- rbind(air_dat1, air_dat2)
+#colnames(air_dat1) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE") 
+#colnames(air_dat2) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE")
+#air_dat_comb <- rbind(air_dat1, air_dat2)
+#dim(air_dat_comb)
+#colnames(air_dat_comb)
+
+
+
 
 #8
-#8 8. Wrangle your new dataset with a pipe function (%>%) so that it fills the following conditions: 
-
-#* Include all sites that the four data frames have in common: "Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "Frying Pan Mountain", "West Johnston Co.", "Garinger High School", "Castle Hayne", "Pitt Agri. Center", "Bryson City", "Millbrook School" (the function `intersect` can figure out common factor levels)
-#* Some sites have multiple measurements per day. Use the split-apply-combine strategy to generate daily means: group by date, site, aqs parameter, and county. Take the mean of the AQI value, latitude, and longitude.
-#* Add columns for "Month" and "Year" by parsing your "Date" column (hint: `lubridate` package)
-#* Hint: the dimensions of this dataset should be 14,752 x 9.
-
-colnames(air_dat_comb)
-class(air_dat_comb$Date)
-
-
-air_dat_comb_wrang1 <- 
+air_dat_comb_wrang3 <- 
   air_dat_comb %>% 
   filter(Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "West Johnston Co.","Frying Pan Mountain", "Garinger High School", "Castle Hayne", "Pitt Agri. Center",  "Bryson City", "Millbrook School")) %>%
-   mutate(month = month(Date)) %>%
+  mutate(month = month(Date)) %>%
   mutate(year = year(Date)) %>%
-  mutate(day = day(Date)) %>% 
-  group_by(day, Site.Name, AQS_PARAMETER_CODE, COUNTY_CODE) %>%
-   summarise(meanAQI = mean(DAILY_AQI_VALUE), 
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>%  #changed AQS_PARAMETER_CODE to AQS_PARAMETER_DESC
+   dplyr::summarise(meanAQI = mean(DAILY_AQI_VALUE), 
             meanlat = mean(SITE_LATITUDE), 
             meanlong = mean(SITE_LONGITUDE))
 
+air_dat_comb_wrang4 <- 
+  air_dat_comb %>% 
+  filter(Site.Name %in% c("Linville Falls", "Durham Armory", "Leggett", "Hattie Avenue", "Clemmons Middle", "Mendenhall School", "West Johnston Co.","Frying Pan Mountain", "Garinger High School", "Castle Hayne", "Pitt Agri. Center",  "Bryson City", "Millbrook School")) %>%
+  group_by(Date, Site.Name, AQS_PARAMETER_DESC, COUNTY) %>%  #changed AQS_PARAMETER_CODE to AQS_PARAMETER_DESC
+   dplyr::summarise(meanAQI = mean(DAILY_AQI_VALUE), 
+            meanlat = mean(SITE_LATITUDE), 
+            meanlong = mean(SITE_LONGITUDE)) %>%
+  mutate(month = month(Date)) %>%
+  mutate(year = year(Date))
 
 
-      #****Im stuck here - cant figure out why the deimentions of air_dat_comb_wrang1 aren't correct. 
-#what columns should be in it?
-#should i use the data set I created in number 8 for number 9, and how will that work, since the data set I created no longer has AQS_PARAMETER_DESC?
-dim(air_dat_comb_wrang1)
-colnames(air_dat_comb_wrang1)
-colnames(air_dat_comb)
+
+dim(air_dat_comb_wrang4)
 
 
 
-NTL.phys.data.PeterPaul1 <- select(NTL.phys.data.PeterPaul1, lakeid:daynum, month, sampledate:comments)
+#9. 
+air_dat_comb_wrang_spread <- pivot_wider(air_dat_comb_wrang4, names_from = AQS_PARAMETER_DESC, values_from = meanAQI)
+colnames(air_dat_comb_wrang_spread)
 
- # %in% is useful for selecting based off of more than two elements
-    #all of the filtering we did above is for character variables
-# Choose a range of conditions of a numeric or integer variable
-
-#9
-#9. Spread your datasets such that AQI values for ozone and PM2.5 are in separate columns. Each location on a specific date should now occupy only one row.
-#spread is turning rows into columns and making the data wider
-colnames(air_dat_comb_wrang1)
-colnames(air_dat_comb)
-head(air_dat_comb$Daily.Max.Conce)
-head(air_dat_comb$AQS_PARAMETER_DESC)
-# Spread data into separate columns using pivot_wider
-air_dat_comb_wrang_spread <- pivot_wider(air_dat_comb, names_from = AQS_PARAMETER_DESC, values_from = Daily.Max.Conce)
-View(air_dat_comb_wrang_spread)
-
-head(air_dat_comb_wrang1$meanAQI)
-head(air_dat_comb_wrang1$AQS_PARAMETER_CODE)
-
-
-air_dat_comb_wrang_spread_sum <- full_join(air_dat_comb_wrang_spread, air_dat_comb)
-View(air_dat_comb_wrang_spread_sum)
-
-
-NTL.phys.nutrient.data.PeterPaul <- full_join(NTL.phys.data.PeterPaul.subset, NTL.nutrient.data.PeterPaul.subset)
 
 
 #10
+dim(air_dat_comb_wrang_spread)
+#the dimesions are 8976, 7
+
 
 #11
+write.csv(EPA_air_PM25_2019_subset, row.names = FALSE, 
+          file ="./EPAair_O3_PM25_NC1718_Processed.csv")
 
 ```
 
@@ -227,21 +212,36 @@ NTL.phys.nutrient.data.PeterPaul <- full_join(NTL.phys.data.PeterPaul.subset, NT
 13. Call up the dimensions of the summary dataset.
 
 ```{r}
-#12a
+#12a and b
+#specify its dplyr summarise
+sumdf <- 
+  air_dat_comb_wrang_spread %>% 
+  group_by(Site.Name, month, year) %>%  #changed AQS_PARAMETER_CODE to AQS_PARAMETER_DESC
+   dplyr::summarise(meanOzone = mean(Ozone),
+                    meanPM2.5 = mean(PM2.5)) %>% 
+  drop_na(month) %>% 
+  drop_na(year)
 
-#12b
-
+  natest <- 
+  air_dat_comb_wrang_spread %>% 
+  group_by(Site.Name, month, year) %>%  #changed AQS_PARAMETER_CODE to AQS_PARAMETER_DESC
+   dplyr::summarise(meanOzone = mean(Ozone),
+                    meanPM2.5 = mean(PM2.5)) %>% 
+  na.omit(month) %>% 
+  na.omit(year)
 #13
+dim(sumdf)
+dim(natest)
 
 ```
 
 14. Why did we use the function `drop_na` rather than `na.omit`?
 
-> Answer: 
+> Answer: We want to remove rows containing NAs. drop na allows us to only remove rows with nas in month or year. na.omit will remove rows with nas in any column.   
 
 
 Appendix
-```{r, eval=FALSE, echo=TRUE}
+```{r, eval=FALSE, echo=TRUE, eval=FALSE}
           ##3
   #EPA_air_03_2018
 class(EPA_air_03_2018$Date)
@@ -320,9 +320,14 @@ write.csv(EPA_air_PM25_2019, row.names = FALSE,
 air_dat1 <- rbind(EPA_air_03_2018, EPA_air_03_2019)
 air_dat2 <-rbind(EPA_air_PM25_2018, EPA_air_PM25_2019)
   #just gotta figure out how to change that one col name here
-colnames(air_dat1) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE") 
-colnames(air_dat2) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE")
-air_dat_comb <- rbind(air_dat1, air_dat2)
+colnames(EPA_air_03_2018) <- colnames(EPA_air_PM25_2018)
+colnames(EPA_air_03_2019) <- colnames(EPA_air_PM25_2018)
+colnames(EPA_air_PM25_2019) <- colnames(EPA_air_PM25_2018)
+air_dat_comb <-rbind(EPA_air_03_2018, EPA_air_03_2019, EPA_air_PM25_2018, EPA_air_PM25_2019)
+
+#colnames(air_dat1) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE") 
+#colnames(air_dat2) <- c("Date","Source","Site.ID","POC",         "Daily.Max.Conce","UNITS"                   ,"DAILY_AQI_VALUE","Site.Name",                        "DAILY_OBS_COUNT","PERCENT_COMPLETE","AQS_PARAMETER_CODE",      "AQS_PARAMETER_DESC", "CBSA_CODE", "CBSA_NAME"               ,"STATE_CODE", "STATE", "COUNTY_CODE", "COUNTY"                 ,"SITE_LATITUDE", "SITE_LONGITUDE")
+#air_dat_comb <- rbind(air_dat1, air_dat2)
 
   ##8
 
@@ -343,15 +348,42 @@ air_dat_comb_wrang1 <-
 dim(air_dat_comb_wrang1)
 
 
+#9. 
+air_dat_comb_wrang_spread <- pivot_wider(air_dat_comb_wrang4, names_from = AQS_PARAMETER_DESC, values_from = meanAQI)
+colnames(air_dat_comb_wrang_spread)
 
-  ##9
-colnames(air_dat_comb_wrang1)
-colnames(air_dat_comb)
-head(air_dat_comb$Daily.Max.Conce)
-head(air_dat_comb$AQS_PARAMETER_DESC)
-# Spread data into separate columns using pivot_wider
-air_dat_comb_wrang_spread <- pivot_wider(air_dat_comb, names_from = AQS_PARAMETER_DESC, values_from = Daily.Max.Conce)
-View(air_dat_comb_wrang_spread)
+
+
+#10
+dim(air_dat_comb_wrang_spread)
+#the dimesions are 8976, 7
+
+
+#11
+write.csv(EPA_air_PM25_2019_subset, row.names = FALSE, 
+          file ="./EPAair_O3_PM25_NC1718_Processed.csv")
+  
+
+#12a and b
+#specify its dplyr summarise
+sumdf <- 
+  air_dat_comb_wrang_spread %>% 
+  group_by(Site.Name, month, year) %>%  #changed AQS_PARAMETER_CODE to AQS_PARAMETER_DESC
+   dplyr::summarise(meanOzone = mean(Ozone),
+                    meanPM2.5 = mean(PM2.5)) %>% 
+  drop_na(month) %>% 
+  drop_na(year)
+
+  natest <- 
+  air_dat_comb_wrang_spread %>% 
+  group_by(Site.Name, month, year) %>%  #changed AQS_PARAMETER_CODE to AQS_PARAMETER_DESC
+   dplyr::summarise(meanOzone = mean(Ozone),
+                    meanPM2.5 = mean(PM2.5)) %>% 
+  na.omit(month) %>% 
+  na.omit(year)
+#13
+dim(sumdf)
+dim(natest)
 ```
 
 

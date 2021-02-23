@@ -120,6 +120,7 @@ write.csv(NTL.nutrient.data.PeterPaul.gathered, row.names = FALSE,
 
 # Spread nutrient data into separate columns using pivot_wider
 NTL.nutrient.data.PeterPaul.spread2 <- pivot_wider(NTL.nutrient.data.PeterPaul.gathered, names_from = nutrient, values_from = concentration)
+#View(NTL.nutrient.data.PeterPaul.gathered)
 
 # Split components of cells into multiple columns
 # Opposite of 'separate' is 'unite'
@@ -227,6 +228,8 @@ NTL.PeterPaul.summaries <-
 #by using the &, your asking for rows where none of those things are na
 write.csv(NTL.PeterPaul.summaries, row.names = FALSE, 
           file ="./Data/Processed/NTL-LTER_Lake_Summaries_PeterPaul_Processed.csv")
+
+View(NTL.PeterPaul.summaries)
 
 ```
 

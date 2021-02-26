@@ -221,3 +221,10 @@ print(needleplot.faceted)
 Question: Which of these plots (6 vs. 7) do you think is more effective, and why? 
 
 > Answer: Plot 7 is more effective, because it is much easier to identifiy which nlcd classes are putting out relatively more or less dry mass. 
+
+
+
+Questions:
+1) Why was I unable to add multiple themes to a ggplot?
+2) How were we supposed to align the axes?
+

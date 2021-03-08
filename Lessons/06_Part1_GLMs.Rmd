@@ -6,6 +6,7 @@ output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
   chunk_output_type: console
+  #making outputs go to the console
 ---
 
 ## Objectives
@@ -18,6 +19,10 @@ editor_options:
 
 The analysis of variance (ANOVA), and linear regression are special cases of the **generalized linear model** (GLM). The GLM also includes analyses not covered in this class, including logistic regression, multinomial regression, chi square, and log-linear models. The common characteristic of general linear models is the expression of a continuous response variable as a linear combination of the effects of categorical or continuous explanatory variables, plus an error term that expresses the random error associated with the coefficients of all explanatory variables. The explanatory variables comprise the deterministic component of the model, and the error term comprises the stochastic component of the model. Historically, artificial distinctions were made between linear models that contained categorical and continuous explanatory variables, but this distinction is no longer made. The inclusion of these models within the umbrella of the GLM allows models to fit the main effects of both categorical and continuous explanatory variables as well as their interactions. 
 
+GLM is a framework for looking at how variables affect different continuous variables. 
+
+Hypothesis testing: have a null hyp and alternative hyp. alternative hyp is the opposite of the null hyp. we start by stating the hypothesis. we find the critical value, and compute the test value. We make a decision on whether or not the reject the null hypothesis. 
+
 ### Choosing a model from your data: A "cheat sheet"
 
 **One-way ANOVA (Analysis of Variance):** Continuous response, one categorical explanatory variable with more than two categories.
@@ -25,6 +30,9 @@ The analysis of variance (ANOVA), and linear regression are special cases of the
 **Two-way ANOVA (Analysis of Variance)** Continuous response, two categorical explanatory variables.
 
 **Single Linear Regression** Continuous response, one continuous explanatory variable.
+-a technique for fitting a line to a set of data points.
+-standard error = a measure of the distance of points around the regression line. want it as small as possible
+-r squared of close to one means the variability in y is all explained by the variation in x
 
 **Multiple Linear Regression** Continuous response, two or more continuous explanatory variables.
 
@@ -53,9 +61,14 @@ theme_set(mytheme)
 ```
 
 ## Linear Regression
+#used to analyze a continuous response variable (y) which is explained by another continuous variable (x)
 A linear regression is comprised of a continuous response variable, plus a combination of 1+ continuous response variables (plus the error term). The deterministic portion of the equation describes the response variable as lying on a straight line, with an intercept and a slope term. The equation is thus a typical algebraic expression: 
 $$ y = \alpha + \beta*x + \epsilon $$
 
+-The equation denotes a straight line
+-straigth line is an approximation of the relationship bw x and y
+alpha + Beta(x) is the deterministic part of the equation
+-goal of linear regression is to find the line of best fit (one that minimizes the distance of the points on the scatterplot to the line)
 The goal for the linear regression is to find a **line of best fit**, which is the line drawn through the bivariate space that minimizes the total distance of points from the line. This is also called a "least squares" regression. The remainder of the variance not explained by the model is called the **residual error.** 
 
 The linear regression will test the null hypotheses that
@@ -63,23 +76,37 @@ The linear regression will test the null hypotheses that
 1. The intercept (alpha) is equal to zero.
 2. The slope (beta) is equal to zero
 
+-the null states that there is no correlation or relationship - so int and slope would be 0
+
 Whether or not we care about the result of each of these tested hypotheses will depend on our research question. Sometimes, the test for the intercept will be of interest, and sometimes it will not.
 
 Important components of the linear regression are the correlation and the R-squared value. The **correlation** is a number between -1 and 1, describing the relationship between the variables. Correlations close to -1 represent strong negative correlations, correlations close to zero represent weak correlations, and correlations close to 1 represent strong positive correlations. The **R-squared value** is the correlation squared, becoming a number between 0 and 1. The R-squared value describes the percent of variance accounted for by the explanatory variables. 
 
 ## Simple Linear Regression
+just one variable on right side of equation : just one x and one y
 
 For the NTL-LTER dataset, can we predict irradiance (light level) from depth?
 
 ```{r}
 irradiance.regression <- lm(PeterPaul.chem.nutrients$irradianceWater ~ PeterPaul.chem.nutrients$depth)
+# y ~ x
+#trying to explain irradiance based on depth levels
 
 # another way to format the lm() function
 irradiance.regression <- lm(data = PeterPaul.chem.nutrients, irradianceWater ~ depth)
 summary(irradiance.regression)
+#when provide data frame this way, dont have to use the dollar sign
+#this is our prefered method
+#depth coefficient is the slope of the line
+#want residual standard error to be as small as possible#df is associated with the number of observations and number of variables considered
+#r squared value tells us how much x explains of variability in y
+#p value of regression at bottom right
+#significant p value means we did a meaningful regression
 
 # Correlation
 cor.test(PeterPaul.chem.nutrients$irradianceWater, PeterPaul.chem.nutrients$depth)
+#the negative correlation result indicates that there is a strong negative correlation bw the variables
+#this model explains about 31% of total variance in irradiance
 ```
 Question: How would you report the results of this test (overall findings and report of statistical output)?
 
@@ -90,17 +117,27 @@ So, we see there is a significant negative correlation between irradiance and de
 An exploratory option to visualize the model fit is to use the function `plot`. This function will return four graphs, which are intended only for checking the fit of the model and not for communicating results. The plots that are returned are: 
 
 1. **Residuals vs. Fitted.** The value predicted by the line of best fit is the fitted value, and the residual is the distance of that actual value from the predicted value. By definition, there will be a balance of positive and negative residuals. Watch for drastic asymmetry from side to side or a marked departure from zero for the red line - these are signs of a poor model fit.
+#if good fit, will be balance of positive and negative residuals
 
-2. **Normal Q-Q.** The points should fall close to the 1:1 line. We often see departures from 1:1 at the high and low ends of the dataset, which could be outliers. 
+2. **Normal Q-Q.** The points should fall close to the 1:1 line. We often see departures from 1:1 at the high and low ends of the dataset, which could be outliers. -this is the quantile quantile plot. it compares the residuals to a normal distribution. if the residuals follow a normal dist, the points should fall close to that diagonal line. sometimes departures are outliers. 
 
-3. **Scale-Location.** Similar to the residuals vs. fitted graph, this will graph the squared standardized residuals by the fitted values. 
+3. **Scale-Location.** Similar to the residuals vs. fitted graph, this will graph the squared standardized residuals by the fitted values.
+similar to residual vs fitted 
 
 4. **Residuals vs. Leverage.** This graph will display potential outliers. The values that fall outside the dashed red lines (Cook's distance) are outliers for the model. Watch for drastic departures of the solid red line from horizontal - this is a sign of a poor model fit.
+-displays potential outliers
 
 ```{r, fig.height = 3, fig.width = 4}
 par(mfrow = c(2,2), mar=c(4,4,4,4))
+#divides plot screen into 4 cells in a 2 by 2 grid
+#mar defines limits of the grids
+#can change size of window by changing the mar part
 plot(irradiance.regression)
 par(mfrow = c(1,1))
+#with this plot, we are looking for symmetry based on this red line and want the red line to be as flat as possible. we can see that there is an observation really disturbing the plot here (first plot)
+#2nd plot: 
+#scale location plot: compare fitted value to somethin. look for symmetry with respect to red line
+#cooks distance: this plot is the one that will help us look at potential outliers, values that fall outside the dashed lines are outliers. also look for drastic departures from solid red line that could be sign of poor model fit
 ```
 
 The option best suited for communicating findings is to plot the explanatory and response variables as a scatterplot. 
@@ -112,6 +149,7 @@ irradiancebydepth <-
   ylim(0, 2000) +
   geom_point() 
 print(irradiancebydepth) 
+#we can see we don't have a linear relationship with x and y: so we can log transform radiance values and compare it to depth levels
 ```
 
 Given the distribution of irradiance values, we don't have a linear relationship between x and y in this case. Let's try log-transforming the irradiance values. Note we also removing the observations that seems to ba an outlier.
@@ -121,6 +159,9 @@ PeterPaul.chem.nutrients <- filter(PeterPaul.chem.nutrients,
                                    irradianceWater != 0 & irradianceWater < 5000)
 irradiance.regression2 <- lm(data = PeterPaul.chem.nutrients, log(irradianceWater) ~ depth)
 summary(irradiance.regression2)
+#want to see if log transformed valyes have linear relationship with depth. must eliminate 0s before log transforming.
+#relationship is still neg
+#now explaining 72% of variation
 
 par(mfrow = c(2,2), mar=c(4,4,4,4))
 plot(irradiance.regression2)
@@ -133,6 +174,7 @@ irradiancebydepth2 <-
   scale_y_log10() +
   geom_point() 
 print(irradiancebydepth2) 
+#scale y log 10 makes it where y axis is log transformed irradiance
 
 # SE - confidence interval around smooth can also be removed
 irradiancebydepth2 <- 
@@ -148,27 +190,41 @@ print(irradiancebydepth2)
 
 ## Multiple Linear Regression
 It is possible, and often useful, to consider multiple continuous explanatory variables at a time in a linear regression. For example, total phosphorus concentration in Paul Lake (the unfertilized lake) could be dependent on depth and dissolved oxygen concentration: 
+-the multiple tells us that we will have more than one variable on the right side of the equation
+
 
 ``` {r, fig.height = 3, fig.width = 4}
 TPregression <- lm(data = subset(PeterPaul.chem.nutrients, lakename == "Paul Lake"), 
                    tp_ug ~ depth + dissolvedOxygen)
 summary(TPregression)
+#subset so that it was just Paul lake
+#relationship is not 0 between the xs and y invidivually
+
 
 TPplot <- ggplot(subset(PeterPaul.chem.nutrients, lakename == "Paul Lake"), 
                  aes(x = dissolvedOxygen, y = tp_ug, color = depth)) +
   geom_point() +
   xlim(0, 20)
 print(TPplot)
+#color coded by depth here
+#made a scatterplot
+#can see its also impacted by depth
+
 
 par(mfrow = c(2,2), mar=c(4,4,4,4))
 plot(TPregression)
+#running those two above lines at once gives me all 4 pltos
+#for residuals vs fitted, we want red line flat: so this isn't a good residuals series
+#normal qq plot here isn't too bad
+#scale has same prob as we did on residuals
+#see some outliers in residuals v leverage
 par(mfrow = c(1,1))
 
 ```
 
 ## Correlation Plots
 We can also make exploratory plots of several continuous data points to determine possible relationships, as well as covariance among explanatory variables. 
-
+-correlation coefficients can help you to find more relevant variables
 ```{r, fig.height = 3, fig.width = 4}
 #install.packages("corrplot")
 library(corrplot)
@@ -176,9 +232,20 @@ PeterPaulnutrients <-
   PeterPaul.chem.nutrients %>%
   select(tn_ug:po4) %>%
   na.omit()
+#new data frame just with cols of interest
 PeterPaulCorr <- cor(PeterPaulnutrients)
+
 corrplot(PeterPaulCorr, method = "ellipse")
+#making correlation plot matrix
+#the oval shapes kinda represent scatter plot of one variable against another
+#the thinner the oval the higher the correlation
+#dark blue is strong pos corr, light blue is strong neg corr
 corrplot.mixed(PeterPaulCorr, upper = "ellipse")
+#mixed means mix of numbers and elipse
+#shows the value of the correlation with the ellipses
+#correlation is a good way of trying to spot good variables to add to your regression. But there is a risk of adding more variables than you need. a good statistical model balances simplicity and high statistical power
+#independant variable is total phosphorus (tp_ug)
+
 ```
 
 ## AIC to select variables
@@ -186,6 +253,10 @@ corrplot.mixed(PeterPaulCorr, upper = "ellipse")
 However, it is possible to over-parameterize a linear model. Adding additional explanatory variables takes away degrees of freedom, and if explanatory variables co-vary the interpretation can become overly complicated. Remember, an ideal statistical model balances simplicity and explanatory power! To help with this tradeoff, we can use the **Akaike's Information Criterion (AIC)** to compute a stepwise regression that either adds explanatory variables from the bottom up or removes explanatory variables from a full set of suggested options. The smaller the AIC value, the better. 
 
 Let's say we want to know which explanatory variables will allow us to best predict total phosphorus concentrations. Potential explanatory variables from the dataset could include depth, dissolved oxygen, temperature, PAR, total N concentration, and phosphate concentration.
+-can use this criteria to select variables!!!
+-does a step wise that either adds or removes explanatory variables
+-the smaller the AIC the better
+
 
 ```{r}
 Paul.naomit <- PeterPaul.chem.nutrients %>%
@@ -194,10 +265,33 @@ Paul.naomit <- PeterPaul.chem.nutrients %>%
 
 TPAIC <- lm(data = Paul.naomit, tp_ug ~ depth + dissolvedOxygen + 
               temperature_C + tn_ug + po4)
-
+#here, considering all nutrients as explanatory variables to explain total phosphorus conc
+summary(TPAIC)
 #Choose a model by AIC in a Stepwise Algorithm
 step(TPAIC)
+#gives step wise algorithm?
+#starting point for the AIC is full regression using all the variables. will get new AIC when remove variables
+#step does show the AIC
+#step shows you how AIC changes as your remove variables! only have to do step once
+#the step wise algorithm removes variables one by one and runs it
+#when none has the lowest AIC value, it means don't remove any more variables
 TPmodel <- lm(data = Paul.naomit, tp_ug ~ dissolvedOxygen + temperature_C + tn_ug)
 summary(TPmodel)
+#this is a linear model with the three optimal explanatory variables
+#we actually didn't improve the regression here, but normally you do
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+

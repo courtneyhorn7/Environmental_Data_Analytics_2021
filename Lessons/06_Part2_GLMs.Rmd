@@ -16,7 +16,9 @@ editor_options:
 ```{r, message = FALSE}
 getwd()
 library(tidyverse)
-#install.packages("agricolae")
+install.packages("htmltools")
+install.packages("agricolae")
+
 library(agricolae)   #you may need to install/update package "htmltools" before installing and loading agricolae
 
 Litter <- read.csv("./Data/Processed/NEON_NIWO_Litter_mass_trap_Processed.csv", stringsAsFactors = TRUE)
@@ -33,29 +35,42 @@ theme_set(mytheme)
 
 ### One-way ANOVA
 A one-way ANOVA is used when you have one categorical explanatory variable with more than two categories. In R, we can run the model with the function `lm` or `aov`, the latter of which will allow us to run post-hoc tests to determine pairwise differences.
+-have one categorical explanatory variable with more than two levels
+
 
 Does total litter biomass differ among sites at the Niwot Ridge LTER?
+-so we want to check if the mean of litter biomass is diff for different sites in out data set
 ```{r}
+#-remember, one way anova is when you have one categorical variable with more than two levels!!!
+#when you run an anova, you reject or don't reject the null. must run post hoc test to see which means aren't equal
 # Wrangle the data
 Litter.Totals <- Litter %>%
   group_by(plotID, collectDate, nlcdClass) %>%
   summarise(dryMass = sum(dryMass))
+#grouping by a few things , what does grouping by mean?
 
 summary(Litter.Totals)
 #check all value of plotID
+#we want to know why the mean has a high variance!
 summary(Litter.Totals$plotID)
+#shows number of occurences of each site. Shows us that this isn't a balanced experiment because certain sites have more obs, but can still run the anova
 
-# Test for normality. 
+# Test for normality. will check for each of the site locations
 # Note: the important assumption for GLMs is normality of residuals, 
 # not necessarily normality of raw data. See below when we plot the model.
 # shapiro.test() performs the Shapiro-Wilk test of the null that data follows a normal distribution
+#shapiro test tests the null hyp that the data follows a normal dist
 
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_040"])
+#we filtered data by site in these equations
+#due to the small p value, we reject the null - so it doesn't follow a normal dist
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_041"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_046"])
+#dont reject for the above
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_047"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_051"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_057"])
+#dont reject for the above
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_058"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_061"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_062"])
@@ -63,25 +78,39 @@ shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_063"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_064"])
 shapiro.test(Litter.Totals$dryMass[Litter.Totals$plotID == "NIWO_067"])
 
-#results: reject null in all except two: NIWO_057 and NIWO_046
-qqnorm(Litter.Totals$dryMass); qqline(Litter.Totals$dryMass)
 
-# Test for equal variance
+#results: reject null in all except two: NIWO_057 and NIWO_046
+#so those are the only sites that follow normal dist, but we can still use anova!
+#qq plots also provide info on normality
+qqnorm(Litter.Totals$dryMass); qqline(Litter.Totals$dryMass)
+#the qq plot indicates the data doesn't follow a normal dist!
+
+# Test for equal variance for all the populations
 # ANOVA is robust against departures from equal variance.
 # bartlett.test() performs Bartlett's test of the null that the variances in each of the groups (samples) are the same.
+#can still run anova if results are false
 bartlett.test(Litter.Totals$dryMass ~ Litter.Totals$plotID)
-
-#results: reject null i.e. variances are not equal
+#level is site location
+#results: reject null i.e. variances are not equal (p value is too low)
 
 # Format ANOVA as aov
 Litter.Totals.anova <- aov(data = Litter.Totals, dryMass ~ plotID)
+#y ~ x
 summary(Litter.Totals.anova)
+#we have 11 df
+#sum square is somethin like deviation from mean of each obs?
+#mean square is sum square divided by df
+#we reject the null which stated that the mean is the same across all diff sites
+#but we don't know which means are diff, so must run post hoc tests
 
 #results: reject null hypothesis i.e. difference between a pair of group means is statiscally significant
 
 # Format ANOVA as lm
 Litter.Totals.anova2 <- lm(data = Litter.Totals, dryMass ~ plotID)
 summary(Litter.Totals.anova2)
+#can also run anova tests using the lm function
+#lm summary is a little more detailed than the aov one
+#all the estimate std are with respect to the int term (which i beleive is the y intercept)
 
 # Checking model fit and assumptions
 # ANOVA is robust against departures from normality.
@@ -90,11 +119,15 @@ plot(Litter.Totals.anova2)
 # Post-hoc test
 # TukeyHSD() computes Tukey Honest Significant Differences
 TukeyHSD(Litter.Totals.anova)
+#the arg here is the result of anova test
+#gave us pair wise comparison
 
 # Extract groupings for pairwise relationships
 Litter.Totals.groups <- HSD.test(Litter.Totals.anova, "plotID", group = TRUE)
+#(anova ob, category, group = TRUE (that means we want the function to group levels that have the same mean))
 Litter.Totals.groups
-
+#HSD test tries to find groups across the diff levels with sim mean
+#same letter indicates similar means
 # Graph the results
 Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
   geom_boxplot() +
@@ -105,20 +138,24 @@ Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
   labs(x = "Plot ID", y = "Dry Mass (g)") +
   ylim(0, 85)
 print(Litter.Totals.plot)
+#will get boxplot for each site id
+#for all sites that have a, mean isn't that far from each other
 ```
 
 What information does the output give us? How might we report this information in a report?
 
-> 
+> Want to reorder these sites so that a groups and b groups are grouped together? So we can see changes in the level of the mean
 
 ## TWO-WAY ANOVA
 ### Main effects
 A two-way ANOVA allows us to examine the effects of two categorical explanatory variables on a continuous response variable. What if we wanted to know how litter masses varied across functional groups and land cover class?
+-remember two way anova allows us to examine the effect of 2 categorical variables on a continuous response variable
 
 ```{r}
 # Format as aov
 Litter.anova.2way <- aov(data = Litter, dryMass ~ functionalGroup + nlcdClass)
 summary(Litter.anova.2way)
+#df is associated with # of levels
 
 # Format as lm
 Litter.anova.2way2 <- lm(data = Litter, dryMass ~ functionalGroup + nlcdClass)
@@ -126,6 +163,8 @@ summary(Litter.anova.2way2)
 
 # Run a post-hoc test for pairwise differences
 TukeyHSD(Litter.anova.2way)
+#shows diff bw the means of the groups, lwr + upper interval
+
 
 ```
 
@@ -137,6 +176,8 @@ The output gives test statistics for each explanatory variable as well as the in
 ```{r}
 # Format as aov
 Litter.anova.2way3 <- aov(data = Litter, dryMass ~ functionalGroup * nlcdClass)
+#we now use the multiply symbol because we want to see the interaction bw them
+#the p value indicates that the interaction of the variables is significant
 summary(Litter.anova.2way3)
 
 # Format as lm
@@ -151,8 +192,12 @@ If the interaction is significant, we interpret pairwise differences for the int
 TukeyHSD(Litter.anova.2way3)
 
 Litter.interaction <- with(Litter, interaction(functionalGroup, nlcdClass))
+#i think we added some information to litter (a data frame we already had), but not totally sure....
+#lutter interaction is a combination of land cover and functional group
+View(Litter.interaction)
+#litter interaction is actually a factor
 
-#Litter.test <- cbind(Litter,Litter.interaction)
+Litter.test <- cbind(Litter,Litter.interaction)
 
 Litter.anova.2way5 <- aov(data = Litter, dryMass ~ Litter.interaction)
 
@@ -163,8 +208,36 @@ Litter.groups
 # Edit this graph to make it more visually appealing.
 # Add letters to represent statistical groupings.
 Litter.anova.plot <- ggplot(Litter, aes(y = dryMass, x = nlcdClass, color = functionalGroup)) +
-  geom_boxplot()
+  geom_boxplot() +
+   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+   stat_summary(geom = "text", fun = max, vjust = -1, size = 3.5,
+                label = c("d", "d", "d", "a","a", "d", "d", "d","d", "d", "d", "b","d", "d", "d", "d","d", "d", "cd", "bc", "d", "d", "d", "d")) +
+  labs(x = "Ecosystem Type", y = "Dry Mass")
 print(Litter.anova.plot)
 
+
+
+
+Litter.Totals.plot <- ggplot(Litter.Totals, aes(x = plotID, y = dryMass)) +
+  geom_boxplot() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  stat_summary(geom = "text", fun = max, vjust = -1, size = 3.5,
+               label = c("abc", "ab", "abcd", "bcd", "bcd", "a", 
+                         "d", "abcd", "cd", "d", "abcd", "abcd")) +
+  labs(x = "Plot ID", y = "Dry Mass (g)") +
+  ylim(0, 85)
+  
+  
+print(Litter.Totals.plot)
+#non parametric means were aren't considering the normal dist stuff, but were not covering those in the vids
+#with environmnetal and energy data, we can usually assume normality and move on
+#she is happy to point out additional reading to learn non parametric ones
+
+
+
+#what does grouping by mean?
+#what is a factor? and what are their levels?
+#what does the 'with' function do?
+#how do we make it so the labels aren't all stacked on top of each other?
 ```
 

@@ -43,6 +43,12 @@ theme_set(mytheme)
 ## T-Test
 
 Continuous response, one categorical explanatory variable with two categories (or comparison to a single value if a one-sample test).
+-t test is similar to anova - anova is like a generalization of t test. use t test when one categorical variable with two levels only
+--> just trying to compare over two levels. if have more levels, must use anova
+-T test is always frameworked on hypothesis testing
+-when wer perform hypothesis tests, we have two hypotheses. they should combine all possible valyes for the population mean
+-if want to prove mu = 50, mu = 50 will be your null hyp ?
+
 
 ### Formulating Hypothesis for µ
 
@@ -62,15 +68,21 @@ Function t.test()
 
 
 Are Ozone levels below the threshold for "good" AQI index (0-50)?
-
+-the threshold for good index is anything below 50
+-wat to know if mean is less than 50
 
 > Exercise 1: State the hypotheses for testing mean of AQI index.
 
 > Answer: 
+H0: mu >=50
+Ha: mu < 50
+*equality should be on the null hyp
 
 
 ```{r}
-
+#going to perform some tests to try to answer this question
+#for t test, we have assumption that data comes from normal dist. with environmental data, its usually a normal dist
+#can still sometimes use t test if dist isn't normal?
 
 summary(EPAair$Ozone)
 EPAair.subsample <- sample_n(EPAair, 5000)
@@ -80,9 +92,12 @@ shapiro.test((EPAair.subsample$Ozone))
 ggplot(EPAair, aes(x = Ozone)) +
   geom_histogram() 
 qqnorm(EPAair$Ozone); qqline(EPAair$Ozone)
+#heavy tail could be leading to neg response on shapiro test
 
 O3.onesample <- t.test(EPAair$Ozone, mu = 50, alternative = "less")
 O3.onesample
+#we reject the null, meaning that our true mean is less than 50
+#when you have a data set, you have a sample of the true population. and you want to know if the mean of your sample is a good rep of the total population. the tests above are good for seeing if the sample is well representing the pop
 
 Ozone.plot <- ggplot(EPAair, aes(x = Ozone)) +
   #geom_density(stat = "count", fill = "gray") +
@@ -90,6 +105,7 @@ Ozone.plot <- ggplot(EPAair, aes(x = Ozone)) +
   geom_vline(xintercept = 50, color = "#238b45", lty = 2, size = 0.9) +
   scale_x_continuous(expand = c(0, 0)) + scale_y_continuous(expand = c(0, 0))
 print(Ozone.plot)
+#here, were just trying to visualize what we answered with the t test. can just plot density of ozone levels (did here) and add a line at the threshold. trying to prove our mean is below that value. The two peaks might be why the shairo test says its not normal. but its still kinda bell shaped, so we can use t test
 ```
 
 Write a sentence or two about the results of this test. Include both the results of the test and an interpretation that puts the findings in context of the research question.
@@ -99,6 +115,7 @@ Write a sentence or two about the results of this test. Include both the results
 ### Two-sample t-test
 
 The two-sample *t* test is used to test the hypothesis that the mean of two samples is equivalent. Unlike the one-sample tests, a two-sample test requires a second assumption that the variance of the two groups is equivalent. Are Ozone levels different between 2018 and 2019?
+-in contrast, one sample t test is comparing one mean to a threshold
 
 ```{r}
 shapiro.test(EPAair$Ozone[EPAair$Year == 2018])
@@ -113,6 +130,8 @@ var.test(EPAair$Ozone ~ EPAair$Year)
 
 ggplot(EPAair, aes(x = Ozone, color = as.factor(Year))) +
   geom_freqpoly()
+#ggplot showing diff bw the years
+#the y axis is the count of obs
 
 # Format as a t-test
 O3.twosample <- t.test(EPAair$Ozone ~ EPAair$Year)
@@ -124,10 +143,12 @@ O3.twosample2 <- lm(EPAair$Ozone ~ EPAair$Year)
 summary(O3.twosample2)
 
 plot(O3.twosample2)
+#this chunk is a simple version of the anova
 ```
 
 
 ## Statistical Test: Cheat sheet
+*concerning when to use each test!
 
 **F-test:** Compare the variances of two groups. The data must be normally distributed.
 
@@ -149,6 +170,7 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 
 ```{r}
 #Exercise 2:
+#*this is homework
 
 
 ```
@@ -158,14 +180,43 @@ Create three plots, each with appropriately formatted axes and legends. Choose a
 Important components of the linear regression are the correlation and the R-squared value. The **correlation** is a number between -1 and 1, describing the relationship between the variables. Correlations close to -1 represent strong negative correlations, correlations close to zero represent weak correlations, and correlations close to 1 represent strong positive correlations. The **R-squared value** is the correlation squared, becoming a number between 0 and 1. The R-squared value describes the percent of variance accounted for by the explanatory variables. 
 
 For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
+or is it the EPA data set?
 
 ```{r}
 
 #Exercise 3: Run a linear regression PM2.5 by Ozone. Find the p-value and R-squared value. 
+colnames(EPAair)
 
+#first way to do it:
+PM2.5_Ozone <- lm(EPAair$PM2.5 ~ EPAair$Ozone)
+summary(PM2.5_Ozone)
+# p value = 2.2e-16
+#R2 = 0.131, so we are only accounting for 13% of the variability
+#we can predict PM2.5 using ozone
 
+#second way to do it:
+airquality_lm <- lm(data=EPAair, Ozone ~ PM2.5)
+summary(airquality_lm)
 
 #Exercise 4: Build a scatterplot. Add a line and standard error for the linear regression. Add the regression equation to the plot
+
+#first way to do it:
+PM2.5_Ozoneplot <- ggplot(data = EPAair, aes(x = Ozone, y = PM2.5))  +
+  geom_point() + 
+  geom_smooth(method = "lm", color = "blue") 
+PM2.5_Ozoneplot
+
+#second way to do it:
+ggplot(EPAair, aes(x = PM2.5, y = Ozone)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = Ozone ~ PM2.5)
+
+
+#when you keep adding stuff to your linear regression, it will affect the R2
+#usually when we are trying to do linear models, we have to balance the complexity of adding a new variable and simplicity: adding a new variable needs to give a lot of improvement
+
+  
+  
 
 
 
@@ -175,21 +226,44 @@ For the NTL-LTER dataset, can we predict PM2.5 from Ozone?
 ## AIC to select variables
 
 What other variables can we add to improve model?
-
+-when you get a low R2, your next step should be thinking about how you can improve the model
 ```{r}
 
 #Exercise 5: Build correlation plots and identify more possible explanatory variables to add to the regression.
-
+library(corrplot)
+EPAvars <- 
+  EPAair %>%
+  select(SITE_LATITUDE:PM2.5) %>%
+  na.omit()
+colnames(EPAair)
+EPAairCorr <- cor(EPAvars)
+corrplot(EPAairCorr, method = "ellipse")
+corrplot.mixed(EPAairCorr, upper = "ellipse")
+#add latitude? and ozone?
 
 
 
 #Exercise 6: Choose a model by AIC in a Stepwise Algorithm. Do the results from AIC match the variables you selected on Exercise 5?
+EPAairfull <- lm(data = EPAair, PM2.5 ~ Ozone + SITE_LATITUDE + SITE_LONGITUDE + Month + Year + Date)
+step(EPAairfull)
+
+#first remove date year or month
+EPAair2 <- lm(data = EPAair, PM2.5 ~ Ozone + SITE_LATITUDE + SITE_LONGITUDE + Month + Year)
+summary(EPAairfull)
+summary(EPAair2)
+step(EPAair2)
 
 
 
+#there was only one variable which seemed to not have good correlation, but was indicated by step to be a good add. This indicates why its important to run a step. There could be something correlated with long which isn't in the actual mean
+#step wise algorithm can indicate variables to add which you didn't know you should add!
+#corr plots and step are two tools for helping you choose which variables to add to your regresison
+#corrplot allows you to pre select some variables, and then can use step to select the ones that really matter
 
-#Exercise 7: Run another regression using the variables selected on Exercise 6. Compare r-squared value withthe one from Exercise 5. 
 
+#Exercise 7: Run another regression using the variables selected on Exercise 6. Compare r-squared value with the one from Exercise 3. 
+AIC_in_class <- lm(data = EPAair, PM2.5 ~ SITE_LATITUDE + SITE_LONGITUDE + Month + Ozone)
+summary(AIC_in_class)
 ```
 
 

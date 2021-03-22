@@ -1,6 +1,6 @@
 ---
 title: "Assignment 7: Time Series Analysis"
-author: "Student Name"
+author: "Courtney Horn"
 output: pdf_document
 geometry: margin=2.54cm
 editor_options: 
@@ -31,6 +31,69 @@ The completed exercise is due on Tuesday, March 16 at 11:59 pm.
 
 ```{r, message = FALSE}
 #1
+getwd()
+library(tidyverse)
+library(lubridate)
+library(zoo)
+library(trend)
+
+mytheme <- theme_light(base_size = 12) +
+  theme(panel.grid.major = element_line(colour = "black")) +
+  theme(axis.text = element_text(color = "black"), 
+  legend.position = c("right, center"))
+
+theme_set(mytheme)
+
+
+#2
+df_2010 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2010_raw.csv", stringsAsFactors = FALSE)
+df_2011 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2011_raw.csv", stringsAsFactors = FALSE)
+df_2012 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2012_raw.csv", stringsAsFactors = FALSE)
+df_2013 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2013_raw.csv", stringsAsFactors = FALSE)
+df_2014 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2014_raw.csv", stringsAsFactors = FALSE)
+df_2015 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2015_raw.csv", stringsAsFactors = FALSE)
+df_2016 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2016_raw.csv", stringsAsFactors = FALSE)
+df_2017 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2017_raw.csv", stringsAsFactors = FALSE)
+df_2018 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2018_raw.csv", stringsAsFactors = FALSE)
+df_2019 <- read.csv("./Data/Raw/Ozone_TimeSeries/EPAair_O3_GaringerNC2019_raw.csv", stringsAsFactors = FALSE)
+
+dim(df_2010)
+dim(df_2011)
+dim(df_2012)
+dim(df_2013)
+dim(df_2014)
+dim(df_2015)
+dim(df_2016)
+dim(df_2017)
+dim(df_2018)
+dim(df_2019)
+#all have same # of columns, but I want to check whether the data sets have the same columns
+
+colnames(df_2010)
+colnames(df_2011)
+colnames(df_2010) == colnames(df_2011)
+colnames(df_2011) == colnames(df_2012)
+colnames(df_2012) == colnames(df_2013)
+colnames(df_2013) == colnames(df_2014)
+colnames(df_2014) == colnames(df_2015)
+colnames(df_2015) == colnames(df_2016)
+colnames(df_2016) == colnames(df_2017)
+colnames(df_2017) == colnames(df_2018)
+colnames(df_2018) == colnames(df_2019)
+
+#now to join the dataframes
+GaringerOzone_pt1 <- full_join(df_2010,df_2011)
+GaringerOzone_pt2 <- full_join(df_2012,df_2013)
+GaringerOzone_pt3 <- full_join(df_2014,df_2015)
+GaringerOzone_pt4 <- full_join(df_2016,df_2017)
+GaringerOzone_pt5 <- full_join(df_2018,df_2019)
+GaringerOzone_pt1.2 <- full_join(GaringerOzone_pt1,GaringerOzone_pt2)
+GaringerOzone_pt3.4 <- full_join(GaringerOzone_pt3,GaringerOzone_pt4)
+GaringerOzone_pt1.2.3.4 <- full_join(GaringerOzone_pt1.2,GaringerOzone_pt3.4)
+GaringerOzone <- full_join(GaringerOzone_pt1.2.3.4, GaringerOzone_pt5)
+
+colnames(GaringerOzone)
+unique(GaringerOzone$Date)
 
 ```
 
@@ -46,13 +109,67 @@ The completed exercise is due on Tuesday, March 16 at 11:59 pm.
 
 ```{r}
 # 3
+GaringerOzone$Date
+#listed as month - day - year
+class(GaringerOzone$Date)
+GaringerOzone$Date <- as.Date(GaringerOzone$Date, format = "%m/%d/%Y")
+class(GaringerOzone$Date)
+head(GaringerOzone$Date)
+#so now, the date is year - month - date
+
+
+
 
 # 4
+#columns Date, Daily.Max.8.hour.Ozone.Concentration, and DAILY_AQI_VALUE
+GaringerOzoneSub <- select(GaringerOzone, Date, Daily.Max.8.hour.Ozone.Concentration, DAILY_AQI_VALUE)
+colnames(GaringerOzoneSub)
+dim(GaringerOzoneSub)
+
 
 # 5
 
-# 6
+#tempdf <- as.data.frame(tempdecomp$time.series[,1:3])
+#class(GaringerOzoneSub$Date)
+#frameDays <- as.data.frame(GaringerOzoneSub(seq(1, 3589, 1)))
+#seq(1, 10, 2) # from, to, by
+#frameDays <- as.data.frame(GaringerOzoneSub$Date(seq(from = "2010-01-01", to = "2019-12-31" by = 1))
+#?seq
+#head(GaringerOzoneSub$Date)
+#?seq
+#frameDays <- as.data.frame(seq())
+#?as.data.frame
+#datelist <- apply(GaringerOzoneSub, seq.Date(from = GaringerOzoneSub$StartDate, to=GaringerOzoneSub$StartDate, by="days"))
 
+
+
+
+
+###5. Notice there are a few days in each year that are missing ozone concentrations. We want to generate a daily dataset, so we will need to fill in any missing days with NA. Create a new data frame that contains a sequence of dates from 2010-01-01 to 2019-12-31 (hint: `as.data.frame(seq())`). Call this new data frame Days. Rename the column name in Days to "Date".
+
+framedays_start <- seq.Date(ymd("2010-01-01"), ymd("2019-12-31"), "days")
+framedays_start1 <- seq.Date(as.Date("2010-01-01"), as.Date("2019-12-31"), "days")
+View(framedays_start1)
+framedays_start1df <- as.data.frame(framedays_start1)
+View(framedays_start1df)
+framedays <-as.data.frame(framedays_start)
+dim(framedays)
+View(framedays)
+tail(framedays)
+colnames(framedays) <-c("Date")
+colnames(framedays)
+colnames(framedays_start1df) <-c("Date")
+colnames(framedays_start1df)
+View(framedays_start1df)
+
+#want a sequence of days and 
+# 6 6. Use a `left_join` to combine the data frames. Specify the correct order of data frames within this function so that the final dimensions are 3652 rows and 3 columns. Call your combined data frame GaringerOzone.
+GaringerOzoneDays <- left_join(framedays, GaringerOzoneSub)
+dim(GaringerOzoneDays)
+dim(framedays)
+
+GaringerOzoneDays1 <- left_join(framedays_start1df, GaringerOzoneSub, by = c("Date"))
+View(GaringerOzoneDays1)
 
 ```
 
@@ -62,6 +179,57 @@ The completed exercise is due on Tuesday, March 16 at 11:59 pm.
 
 ```{r}
 #7
+colnames(GaringerOzoneDays)
+#GaringerOzoneDays$Daily.Max.8.hour.Ozone.Concentration
+
+#ozone_time_line <- ggplot(GaringerOzoneDays) +
+ # geom_line(aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration), color = "blue")
+  
+
+  #print(ozone_time)
+  
+#lineatt <- 
+  #ggplot(GaringerOzoneDays) +
+  #       aes(x = Date, Daily.Max.8.hour.Ozone.Concentration) +
+ # geom_line() +
+ #  geom_smooth( method = lm ) +
+ # ylab("Ozone Concentration (PPM)") + xlab("Date")
+ # print(lineatt)  
+  
+ozone_time_lp <- 
+  ggplot(GaringerOzoneDays) +
+         aes(x = Date, Daily.Max.8.hour.Ozone.Concentration) +
+  geom_line(size = 0.15) +
+   geom_smooth( method = lm ) +
+  ylab("Ozone Concentration (PPM)") + xlab("Date")
+  print(ozone_time_lp)   
+  
+ozone_time_lp1 <- 
+  ggplot(GaringerOzoneDays1) +
+         aes(x = Date, Daily.Max.8.hour.Ozone.Concentration) +
+  geom_line(size = 0.15) +
+   geom_smooth( method = lm ) +
+  ylab("Ozone Concentration (PPM)") + xlab("Date")
+  print(ozone_time_lp1)     
+
+  
+  
+#lineatt <- 
+  #ggplot(GaringerOzoneDays) +
+         #geom_line(aes(x = Date, y = Daily.Max.8.hour.Ozone.Concentration), #size = 0.15) +
+  
+  #geom_smooth( method = lm ) +
+  #geom_line(aes(y = trend, x = Date), color = "#c13d75ff") +
+  #ylab("Ozone Concentration (PPM)") + xlab("Date")
+
+#print(lineatt) 
+
+
+#EnoDischarge.late_ts <- ts(EnoDischarge.late$discharge.mean, start = c(1985,1), frequency = 365)
+#1985 is the starting point for observations
+#1 is the month of the starting for obs
+  #so we have created a time series object
+#head(EnoDischarge.late_ts, 10)
 
 ```
 
@@ -75,6 +243,37 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 
 ```{r}
 #8
+#linear interpolation!
+head(GaringerOzoneDays)
+summary(GaringerOzoneDays)
+#63 NAs in both ozone columns
+
+
+
+# Adding new column with no missing obs, just for illustration purpose
+# In real applications you will simply replace NAs
+wind_data_clean <- 
+  wind_data %>% 
+  mutate( AWND.clean = zoo::na.approx(AWND) )
+#na.approx allows us to interpolate missing obs
+#before na.approx, we specified the name of the package. if do that, don't need to library the package!
+#we are using na.approx and applying it to column AWND
+colnames(GaringerOzoneDays)
+
+GaringerOzoneDays_clean <- 
+  GaringerOzoneDays1 %>% 
+  mutate( DAILY_AQI_VALUE.clean = zoo::na.approx(DAILY_AQI_VALUE) )
+
+#View(GaringerOzoneDays_clean)
+
+GaringerOzoneDays_clean2 <- 
+  GaringerOzoneDays_clean %>% 
+  mutate( Daily.Max.8.hour.Ozone.Concentration.clean = zoo::na.approx(Daily.Max.8.hour.Ozone.Concentration) )
+
+View(GaringerOzoneDays_clean2)
+summary(GaringerOzoneDays_clean2)
+
+#View(GaringerOzoneDays_clean2)
 
 ```
 
@@ -85,7 +284,39 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 
 ```{r}
 #9
+colnames(GaringerOzoneDays_clean2)
 
+#mutate the month and year into one column
+GaringerOzone.monthly <-
+  GaringerOzoneDays_clean2 %>% 
+  mutate(month = month(Date)) %>% 
+  mutate(year = year(Date)) %>% 
+  mutate(date = my(paste0(month, "-" ,year)))  
+  #group_by(month) %>% 
+ # dplyr::summarise(meanAQI = mean(DAILY_AQI_VALUE.clean), 
+            #meanozone = mean(Daily.Max.8.hour.Ozone.Concentration))
+     #mutate(year = year(Date)) %>% 
+  #mutate(date = my(paste0(month, "-" ,year)))       
+#I'm super unsure if this is correct
+View(GaringerOzone.monthly)  
+
+
+colnames(GaringerOzoneDays_clean2)
+
+
+GaringerOzonemonthmeans <- 
+  GaringerOzone.monthly %>% 
+  group_by(date) %>% 
+ dplyr::summarise(meanAQI = mean(DAILY_AQI_VALUE.clean), 
+            meanozone = mean(Daily.Max.8.hour.Ozone.Concentration.clean))
+
+
+?full_join
+View(GaringerOzonemonthmeans)
+GOmonthfinal<- full_join(GaringerOzone.monthly, GaringerOzonemonthmeans, by = "date")
+View(GOmonthfinal)
+#don't need to merge here!
+#how come this will work today but wouldn't before? whats going on with the packages?
 ```
 
 
@@ -93,7 +324,31 @@ Study question: Have ozone concentrations changed over the 2010s at this station
 
 ```{r}
 #10
+GaringerOzone.daily.ts <- 
+framedays
+framedays
 
+f_day 
+f_month <- month(first(wind_data_clean$DATE))
+f_year <- year(first(wind_data_clean$DATE))
+wind_data_ts <- ts(wind_data_clean$AWND.clean,
+                   start=c(f_year,f_month),
+                   frequency=12) 
+
+GaringerOzone.daily.ts <- ts(wind_data_clean$AWND.clean,
+                   start=c(f_year,f_month),
+                   frequency=12) 
+GaringerOzone.daily.ts<- ts(GaringerOzoneDays_clean2$Daily.Max.8.hour.Ozone.Concentration, start = c(2010, 1, 1), frequency = 365)
+
+GaringerOzone.monthly.ts<- ts(GaringerOzonemonthmeans$meanozone, start = c(2010, 1), frequency = 12)
+#change the starting date because now monthly
+
+colnames(GaringerOzone.monthly)
+colnames(GaringerOzonemonthmeans)
+
+#when your creating a time series, need to provide it with one column from your data frame. 
+#can give starrt manually
+#frequency is 365 because its daily data
 ```
 
 

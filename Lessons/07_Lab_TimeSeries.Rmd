@@ -77,7 +77,8 @@ Temp_BR_processed <-
   mutate( Date = my(paste0(Month,"-",Year))) %>% 
   select(Date,Temperature_C)  
 
-
+colnames(Temp_BR_processed)
+colnames(Rainfall_BR_processed)
 #Exercise 4: Join the temperature and rainfall into one tidy data frame with 3 columns: Date, Rainfall and Temperature.
 BRA_complete <- inner_join(Rainfall_BR_processed,Temp_BR_processed)
 #we used inner join because they both have the same date column and we knew they would be joined by date
@@ -102,21 +103,27 @@ anyNA(BRA_complete$Rainfall)
 
 
 #Exercise 6: Plot both series over time on separate plots. Add a trend line using geom_smooth(). Can you say something about the trend just by visualizing the data?
+
+#rainfall
 ggplot(data = BRA_complete, aes(x = Date, y = Rainfall )) +
   geom_line() +
   geom_smooth(method = "lm")
-  
-ggplot(BRA_complete) +
-  geom_line(aes(x = Date, y = Temperature_C), color = "black") +
-  geom_smooth(method = "lm") +
-  ylab("Average Wind Speed")
-
-ggplot)data=BRA_complete, aes(x=Date, y=Rainfall)) +
-  geom_line()+
-  geom_smooth(method="lm")
 
 
 
+ggplot(BRA_complete, aes(x = Date, y = Rainfall)) +
+  geom_line(color = "blue") +
+  labs(x = "Date", y = "Rainfall") +
+  geom_smooth(method = "lm")
+
+
+#temperature  
+ggplot(BRA_complete, aes(x = Date, y = Temperature_C)) +
+  geom_line(color = "pink") +
+  labs(x = "Date", y = "Temperature") +
+  geom_smooth(method = "lm")
+
+#temperature has a greater slope??? but the y axis numbers aren't the same so I am unsure....
 
 
 ```
@@ -126,11 +133,18 @@ ggplot)data=BRA_complete, aes(x=Date, y=Rainfall)) +
 
 ```{r}
 #Exercise 7: Create a time series objects for each series using ts(). Make sure you specify the starting point and frequency.
+f_month <- month(first(BRA_complete$Date))
+f_year <- year(first(BRA_complete$Date))
+
 temp_ts <- ts(BRA_complete$Temperature_C, start = c(1901,1), frequency = 365)
+temp_ts2 <- ts(BRA_complete$Temperature_C, start = c(f_year,f_month), frequency = 12)
+rain_ts <- ts(BRA_complete$Rainfall, start = c(1901,1), frequency = 365)
+rain_ts2 <-  ts(BRA_complete$Rainfall, start = c(f_year,f_month), frequency = 12)
+
 colnames(BRA_complete)
 plot(temp_ts)
+plot(temp_ts2)
 head(BRA_complete$Date)
-rain_ts <- ts(BRA_complete$Rainfall, start = c(1901,1), frequency = 365)
 
 ```
 
@@ -152,8 +166,9 @@ The `stl` function decomposes the time series object into its component parts. W
 # Exercise 8: Use the stl() function to decompose both series. 
 # Visualize the decomposed series using plot(). What components can you identify?
 tempdecomp <- stl(temp_ts, s.window = "periodic")
+plot(tempdecomp)
 raindecomp <- stl(rain_ts, s.window = "periodic")
-
+plot(raindecomp)
 
 
 
@@ -161,24 +176,35 @@ raindecomp <- stl(rain_ts, s.window = "periodic")
 # components of each series and turn them into data frames.
 
 tempdf <- as.data.frame(tempdecomp$time.series[,1:3])
-head(tempdecomp)
+tempdf <- mutate(tempdf, Observed = BRA_complete$Rainfall,
+                 Date = BRA_complete$Date)
+head(tempdf)
+plot(tempdf)
 
+raindf <- as.data.frame(raindecomp$time.series[,1:3])
+raindf <- mutate(raindf, Observed = BRA_complete$Temperature_C, Date = BRA_complete$Date)
+head(raindf)
 
-
-EnoDischarge.late_Components <- mutate(EnoDischarge.late_Components,
-        Observed = EnoDischarge.late$discharge.mean,     
-        Date = EnoDischarge.late$datetime)
 
 
 
 
 # Exercise 10: Visualize how the trend maps onto the data for both series
 
+#temp
+ggplot(tempdf) +
+  geom_line(aes(y = Observed, x = Date), size = 0.25) +
+  geom_line(aes(y = trend, x = Date), color = "blue") +
+  #geom_hline(yintercept = 0, lty = 2) +
+  ylab(expression("Temperature"))
 
+#rainfall
 
-
-
-
+ggplot(raindf) +
+  geom_line(aes(y = Observed, x = Date), size = 0.25) +
+  geom_line(aes(y = trend, x = Date), color = "blue") +
+  geom_hline(yintercept = 0, lty = 2) +
+  ylab(expression("Rainfall"))
 ```
 
 
@@ -196,6 +222,14 @@ Monotonic trends are a gradual shift over time that is consistent in direction. 
 
 # Exercise 11: Apply one of the trend detection test to the original data set. Remember that the data has seasonal component, which test can be applied in this case?
 #seasonal mann kendell
+
+rainfall_trend <- Kendall::SeasonalMannKendall(rain_ts)
+rainfall_trend2 <- Kendall::SeasonalMannKendall(rain_ts2)
+summary(rainfall_trend)
+summary(rainfall_trend2)
+
+
+
 f_month <- month(first(wind_data_clean$DATE))
 f_year <- year(first(wind_data_clean$DATE))
 wind_data_ts <- ts(wind_data_clean$AWND.clean,
@@ -214,9 +248,9 @@ wind_data_ts <- ts(wind_data_clean$AWND.clean,
 # Exercise 12: Now remove the seasonality and apply another test. Compare the results with what you obtained on Exercise 9.
 
 
-
-
-
+raindf_NonSeasonal <- rain_ts2-raindf$seasonal
+rain_trend_nonseasonal <- Kendall:SeasonalMannKendall(raindf_NonSeasonal)
+summary(rain_trend_nonseasonal)
 
 
 

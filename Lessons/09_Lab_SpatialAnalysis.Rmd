@@ -81,10 +81,13 @@ mapView(counties_sf, zcol = "AWATER")
 ```{r read HUCs shapefile}
 #Read the shapefile into an sf dataframe named "huc8_sf"
 
+huc8_sf<- st_read('./Data/Spatial/NCHUC8.shp') 
 
 
 #View the data as a map, colored by the acreage in each
-
+mapView(huc8_Sf, zcol = "ACRES")
+colnames(lab_shp)
+#can use a plus sign to do overlay
 
 ```
 
@@ -95,10 +98,12 @@ mapView(counties_sf, zcol = "AWATER")
 ```{r Select the Upper Neuse HUC 8}
 #Read the shapefile into an sf dataframe
 
+HUC8_UN_sf <- st_read('./Data/Spatial/NCHUC8.shp') %>% 
+  filter(SUBBASIN == 'Upper Neuse')
 
 
 #Create a map
-
+mapview(huc8_sf, col.regions='orange')+mapview(HUC8_UN_sf)
 
 ```
 

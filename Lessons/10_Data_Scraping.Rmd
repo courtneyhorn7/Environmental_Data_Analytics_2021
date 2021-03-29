@@ -12,14 +12,17 @@ editor_options:
 1. Acquire and scrape data from web sources
 2. Process web-scraped data into reproducible formats
 3. Use wrangling techniques to automate scraping processes
-
+#data scraping is scraping data off websites that don't lend themselves to easily getting the data
+#in these examples, the data are there, but there are no download methods really
 ## Set up
 ```{r, message = FALSE}
 getwd()
 library(tidyverse)
 library(lubridate)
+library(ggplot2)
+#because well be working with tables and dates
 
-#install.packages("rvest")
+install.packages("rvest")
 library(rvest)
 
 # Set theme
@@ -39,7 +42,7 @@ Web scraping is the process of pulling data directly from websites. Copy and pas
 
 ### Some important caveats
 You might now feel that web scraping isn't always legitimate - and you're right! Not all content providers want their sites to be scraped. To ensure that your web scraping is done ethically, check out this great article covering the ethics and legality of web scraping: <https://prowebscraper.com/blog/is-web-scraping-legal/>
-
+#check terms of service to know if scraping is ethical
 
 > For discussion: Can you give examples of ethical and unethical web scraping?
 
@@ -107,6 +110,7 @@ the_facility_name <- webpage %>%
   html_nodes("tr:nth-child(2) th+ .left:nth-child(2)") %>% 
   html_text()
 the_facility_name
+#tr:nth-child(2) th+ .left:nth-child(2)
 
 the_facility_type <- webpage %>% 
   html_nodes("tr:nth-child(2) .left~ .left+ td.left") %>% 
@@ -197,6 +201,7 @@ df_withdrawals <- data.frame("Month" = rep(1:12),
          Facility_name = !!the_facility_name,
          Facility_type = !!the_facility_type,
          Date = my(paste(Month,"-",Year)))
+#!! tells R to interpret the_registrant as a variable rather than a string
 
 #Plot 
 ggplot(df_withdrawals,aes(x=Date,y=Avg_Withdrawals_mgd)) + 
@@ -255,7 +260,7 @@ scrape.it <- function(the_year, the_facility){
 ```{r test.the.function}
 #Run the function
 the_df <- scrape.it(2018,'0004-0001')
-view(the_df)
+View(the_df)
 
 ```
 
@@ -270,8 +275,8 @@ my_facility = '0004-0001'
 the_dfs <- lapply(X = the_years,
                   FUN = scrape.it,
                   the_facility=my_facility)
-
-#OR, use purrr's map function
+#lapply allows you to repeat the scrape.it function for each value in the array of years. 
+#OR, use purrr's map function. This is an example of how to use lapply for two inputs and have one input be static
 the_dfs <- map(the_years,scrape.it,the_facility=my_facility)
 
 #Conflate the returned dataframes into a single dataframe
@@ -332,6 +337,7 @@ the_years <- rep.int(2020,length(the_facility_ids_subset))
 
 #"Map" the "scrape.it" function to retrieve data for all these
 dfs_2020 <- map2(the_years, the_facility_ids_subset, scrape.it) 
+#the two lists have to be the same size here
 
 #Conflate the returned list of dataframes into a single one
 df_2020 <- bind_rows(dfs_2020)
@@ -350,6 +356,7 @@ To scrape for both years and sites, we need to dig deeper into Purrr's map funct
 ```{r}
 #Create a subset of facilities
 the_facilities <- sample(the_facility_ids,3)
+#here, we are grabbing 3 sites
 the_years = c(2018,2019,2020)
 
 #Use the cross2 function to generate a list of unique combos of year and facility ids
@@ -357,6 +364,7 @@ the_years = c(2018,2019,2020)
 the_df <- cross2(the_years,the_facilities) %>% 
   map(lift(scrape.it)) %>% 
   bind_rows()
+#this scrapes all 9 combinations
 
 #Plot
 ggplot(the_df,aes(x=Date,y=Avg_Withdrawals_mgd,color=Facility_name)) + 
@@ -365,6 +373,6 @@ ggplot(the_df,aes(x=Date,y=Avg_Withdrawals_mgd,color=Facility_name)) +
   labs(title = "Water usage data",
        y="Withdrawal (mgd)",
        x="Date")
-
+#plotted multiple years 3 sites
 ```
 

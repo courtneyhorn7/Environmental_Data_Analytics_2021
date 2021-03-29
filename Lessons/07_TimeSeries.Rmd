@@ -30,6 +30,7 @@ library(Kendall)
 #install.packages("tseries")
 library(tseries)
 
+
 # Set theme
 mytheme <- theme_classic(base_size = 14) +
   theme(axis.text = element_text(color = "black"), 
@@ -105,7 +106,7 @@ A given time series can be made up of several component series:
 
 1. A **seasonal** component, which repeats over a fixed known period (e.g., seasons of the year, months, days of the week, hour of the day)
 2. A **trend** component, which quantifies the upward or downward progression over time. The trend component of a time series does not have to be monotonic.
-ex) there are stochastic trends which cant be approxiamted by linear regression
+ex) there are stochastic trends which cant be approximated by linear regression
 3. An **error** or **random** component, which makes up the remainder of the time series after other components have been accounted for. This component reflects the noise in the dataset.
 -random component is whatever is left. its the part of the time series that cant be explained by trend or seasonality
 4. (optional) A **cyclical** component, which repeats over periods greater than the seasonal component. A good example of this is El Niño Southern Oscillation (ENSO) cycles, which occur over a period of 2-8 years.
@@ -182,7 +183,7 @@ A third type of trend we haven't talked about is the **step** trend, also knows 
 
 
 ### Monotonic trend analysis
--need to first figure out if there is as gap in the data
+-need to first figure out if there is a gap in the data
 In general, detecting a monotonic trend requires a long sequence of data with few gaps. If we are working with monthly data, a time series of at least five years is recommended. Gaps can be accounted for, but a gap that makes up more than 1/3 of the sampling period is generally considered the threshold for considering a gap to be too long (a step trend analysis might be better in this situation). 
 
 Adjusting the data may be necessary to fulfill the assumptions of a trend test. A common method to replace missing values is **interpolation**. Common interpolation methods: 
@@ -272,12 +273,15 @@ wind_data_trend1 <- Kendall::SeasonalMannKendall(wind_data_ts)
 wind_data_trend1
 summary(wind_data_trend1)
 #the trend is stationary for the seasons with the high p values
+#the null hypothesis for the mann kendall is that the data is stationary
+#if the pvalue is less than 0.05, we can reject the null and say that we have a trend
 
 
 wind_data_trend2 <- trend::smk.test(wind_data_ts)
 # Inspect results
 wind_data_trend2
 summary(wind_data_trend2)
+#this indicates that for some seasons there is a higher tendency of decrease because we can see a more negative S value for some of them
 
 #Visualization
 wind_data_plot <-

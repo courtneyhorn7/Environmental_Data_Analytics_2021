@@ -42,12 +42,17 @@ library(mapview)
 # 2. REPRESENTING SPATIAL DATA IN R:
 
 ## 2.1 The vector (vs raster) data model
+-these are the two categories of spatial data
+-rasters are pixels. Raster data divides the landscape into a grid and then we define a value to the square. this allows us to do stuff like remote sensing.
+-were not dealing with raster data
 
 Spatial data are modeled in two formats: *vector* and *raster*. Today, we'll be concentrating on vector data, perhaps returning to raster a bit later. With vector data, features are represented with a combination of three elements: **geometry**, **attributes**, and a **coordinate reference system**, or `crs`. Let's talk about the first two and then come back to the CRS a bit later.
+
 
 ### 2.1.1 Feature *geometries*
 
 With vector data, a spatial feature takes the form of a *point*, *line*, or a *polygon*, collectively referred to as its **geometry**.
+-features are anything you can map
 
 > *Question*: List three features you might see on a map. Would they best be represented as a point, line, or polygon? Can some features be represented by more than one type? Can you think of any features that you couldn't map with a point/line/polygon?
 
@@ -56,6 +61,7 @@ With vector data, a spatial feature takes the form of a *point*, *line*, or a *p
 ### 2.1.2 Feature *attributes*
 
 In addition to its geometry, **attributes** are also linked to spatial features. Attributes hold all the non-geometric information associated with the feature: an ID or name, some measurements, a collection date, etc.
+-these are non-spatial information that are attached to our locations (ex: an ID for intersections, station name of EPA monitoring stations, etc)
 
 ### 2.1.3 Feature *geometries + attributes*
 
@@ -78,10 +84,16 @@ EPAair_PM_avg <- EPAair_PM25_NC2018_raw %>%
   group_by(Site.Name, COUNTY, SITE_LATITUDE, SITE_LONGITUDE) %>% 
   summarize(meanPM = mean(Daily.Mean.PM2.5.Concentration),
             maxPM = max(Daily.Mean.PM2.5.Concentration))
+#were grouping the data set based on location and are going to compute meams
+
+View(EPAair_PM_avg)
 
 #Plot the data using longitude and latitude as X and Y
 ggplot(EPAair_PM_avg, aes(x=SITE_LONGITUDE, y=SITE_LATITUDE)) + 
   geom_point(aes(color=meanPM), size=4, alpha=0.5) + coord_equal() 
+#coord_equal is a modifier
+#the points are shown with real distances so that we can almost see autocorrelation
+#not a great plot
 ```
 
 This is more of a proof of concept than a useful map. We can sort of visualize spatial patterns in the data, but without context of scale or location, it's somewhat difficult. We can greatly improve this map with the help of some mapping packages for R...
@@ -91,6 +103,7 @@ This is more of a proof of concept than a useful map. We can sort of visualize s
 See <https://rdrr.io/cran/mapview/man/mapviewOptions.html> for more info.
 
 ```{r plot.data.with.mapview}
+#tapping into google maps using R here
 
 #Set the available map backgrounds
 mapviewOptions(basemaps = c('OpenStreetMap','Esri.WorldImagery','Stamen.Toner','Stamen.Watercolor'))
@@ -104,6 +117,7 @@ myMap = mapview(EPAair_PM_avg,
 
 #Show the map
 myMap
+#we brought in some base maps
 
 #Save the map (if you want) [Currently not working: https://github.com/r-spatial/mapview/issues/312]
 #mapshot(myMap, file='EPA_SiteMap.jpeg')  #Save to a PNG file
@@ -128,6 +142,8 @@ myMap  <- leaflet(data=EPAair_PM_avg) %>%
                    popup = ~as.character(`Site.Name`))
 #Show the map
 myMap
+#what were doing here is telling the data we want, adding tiles (the backgrounds), and adding the data as circle markers
+
 ```
 
 There's much more we can do to make these maps prettier and more powerful, but we'll come back to that. But take time to notice the power of mapping: like previous plots, we are able to interpret patterns in our dataset, but in geographically mapping our data, we can visualize these patterns in a much richer context by viewing them next to other spatial datasets (e.g. our basemaps). Ok, let's continue talking about spatial features in the vector model...
@@ -171,11 +187,13 @@ Sf objects are organized into three main classes, which you can read more about 
 
 **Main sf Geometry Classes:**
 
+#these are data frames will new column types (geometry) that allow us to do spatial analysis
 Also, sf geometries are organized into three main classes:
 
 1.  sf - the data frame that with feature attributes and feature geometries, this contains...
 2.  sfc - the list-column with the geometries for each record, this contains...
 3.  sfg - the feature geometry of an individual simple feature
+#is a spatial feature geometry
 
 There are a number of different types of "simple features" geometry types represented by the sf package (Table 1). You can read about all of these [here](https://r-spatial.github.io/sf/articles/sf1.html).
 

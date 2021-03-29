@@ -76,6 +76,7 @@ EPA_air_PM25_2019$Date <- as.Date(EPA_air_PM25_2019$Date, format = "%m/%d/%Y")
 #head(EPA_air_PM25_2019$Date)
 
 
+
 #4
   #EPA_air_03_2018
 EPA_air_03_2018_subset <- select(EPA_air_03_2018, Date, DAILY_AQI_VALUE, Site.Name, AQS_PARAMETER_DESC, COUNTY, SITE_LATITUDE, SITE_LONGITUDE)

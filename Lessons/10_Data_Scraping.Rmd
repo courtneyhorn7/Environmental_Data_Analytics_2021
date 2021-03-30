@@ -152,7 +152,7 @@ df_withdrawals <- df_withdrawals %>%
          Date = my(paste(Month,"-",Year)))
 
 #Plot 
-ggplot(df_withdrawals,aes(x=Date,y=Avg_Withdrawals_mgd)) + 
+ggplot(df_withdrawals,aes(x=Date,y=Avg_Withdrawals_mgd)) +
   geom_line() + 
   geom_smooth(method="loess",se=FALSE) +
   labs(title = paste("2020 Water usage data for",the_registrant),

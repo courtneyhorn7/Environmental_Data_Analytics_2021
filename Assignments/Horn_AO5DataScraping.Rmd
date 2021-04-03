@@ -56,7 +56,7 @@ Indicate this website as the as the URL to be scraped.
 ```{r set.the.scraping.website}
 #2
 webpage <- read_html('https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2019')
-#https://www.ncwater.org/WUDC/app/LWSP/report.php?pwsid=03-32-010&year=2019
+
 
 ```
 
@@ -114,14 +114,14 @@ daily_withdrawals_Df <- data.frame("Month" = rep(1:12),
                                    "Max_Daily_Withdrawals" = as.numeric(MGD)
                               )
 
-View(daily_withdrawals_Df)
+#View(daily_withdrawals_Df)
 
 daily_withdrawals_Df2 <- daily_withdrawals_Df %>% 
   mutate(Date = my(paste(Month, "-", Year)))
 
-View(daily_withdrawals_Df2) 
+#View(daily_withdrawals_Df2) 
 
-class(daily_withdrawals_Df2$Date)
+#class(daily_withdrawals_Df2$Date)
 
 daily_withdrawals_Df3 <- data.frame("Month" = c("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
                                    "Year" = rep(2019,12), 
@@ -130,12 +130,12 @@ daily_withdrawals_Df3 <- data.frame("Month" = c("January", "February", "March", 
                                    "ownership" = 
                                      as.character(Own)
                               )
-View(daily_withdrawals_Df3) 
+#View(daily_withdrawals_Df3) 
 
 daily_withdrawals_Df4 <- daily_withdrawals_Df3 %>% 
   mutate(Date = my(paste(Month, "-", Year)))
 
-View(daily_withdrawals_Df4) 
+#View(daily_withdrawals_Df4) 
 
 daily_withdrawals_Df5 <- data.frame("Year" = rep(2019,12), 
                                    "Water_system_name" = as.character(watsys_name), 
@@ -148,14 +148,14 @@ daily_withdrawals_Df6 <- daily_withdrawals_Df5 %>%
   mutate(Month = c("January", "May", "September", "February", "June", "October", "March", "July", "November", "April", "August", "December")) %>% 
   mutate(Date = my(paste(Month, "-", Year)))
 
-View(daily_withdrawals_Df6)
+#View(daily_withdrawals_Df6)
 
 
 daily_withdrawals_Df7 <- daily_withdrawals_Df5 %>% 
   mutate(Month = c(1,5,9,2,6,10,3,7,11,4,8,12)) %>% 
   mutate(Date = my(paste(Month, "-", Year)))
 
-View(daily_withdrawals_Df7)
+#View(daily_withdrawals_Df7)
 
 class(daily_withdrawals_Df7$Date)
 #the order of the monthly data is January, May, September, Feb, Jun, Oct, Marc, Jul, Nov, Apr, Aug, Dec
@@ -174,7 +174,7 @@ max_daily_wd_plot1 <-
       #x="Date")) 
 
 
-print(max_daily_wd_plot1)
+#print(max_daily_wd_plot1)
 
 max_daily_wd_plot2 <- 
   ggplot(daily_withdrawals_Df7, aes(x=Month, y=Max_Daily_Withdrawals)) +
@@ -185,13 +185,15 @@ max_daily_wd_plot2 <-
       y="Withdrawal (mgd)",
       x="Date")) 
 
+#max_daily_wd_plot2
+
 max_daily_wd_plot3 <- 
   ggplot(daily_withdrawals_Df7, aes(x=Month, y=Max_Daily_Withdrawals)) +
   geom_point() +
   geom_line(color = "blue") + 
-  labs(title = paste("2019 Water usage data for Durham"),
-      y="Withdrawal (mgd)",
-      x="Date") +
+  labs(title = paste("2019 Water Usage data for Durham"),
+      y="Max Daily Water Withdrawal",
+      x="Month") +
  scale_x_continuous(breaks = c(1:12)) 
 
 print(max_daily_wd_plot3)
@@ -248,20 +250,12 @@ df_withdrawals <- data.frame("Month" = rep(1:12),
          Ownership = !!ownership,
          Date = my(paste(Month,"-",Year)))
 
-View(df_withdrawals)
+#View(df_withdrawals)
 
 df_withdrawals1 <- df_withdrawals
 df_withdrawals1$Date <- as.Date(df_withdrawals1$Date)
 class(df_withdrawals1$Date)
 
-ggplot(df_withdrawals,aes(x=Date,y=MGD_withdrawals)) + 
-  geom_point() +
-  geom_line(color = "blue") +
-  geom_smooth(method="loess",se=FALSE) +
-  labs(title = paste("2020 Water usage data for",wat_sys_name),
-       subtitle = wat_sys_name,
-       y="Withdrawal (mgd)",
-       x="Date")
 
 
 
@@ -310,7 +304,7 @@ dfhelp <- data.frame("Month" = rep(1:12),
 #7
 
 durham2015 <- scrape.help(2015, '03-32-010')
-View(durham2015)
+#View(durham2015)
 
 ```
 
@@ -320,13 +314,13 @@ View(durham2015)
 #8
 
 ash2015 <- scrape.help(2015, '01-11-010')
-View(ash2015)
+#View(ash2015)
 
 #combine asheville and durham data
 dim(durham2015)
 dim(ash2015)
 df2015 <- full_join(ash2015, durham2015)
-View(df2015)
+#View(df2015)
 colnames(df2015)
 
 min(df2015$Date)
@@ -334,8 +328,11 @@ min(df2015$Date)
 ggplot(data=df2015, aes(x = Date, y = Avg_Withdrawals_mgd, color = system_name))+
   geom_line() +
   labs(title = paste("Water Withdrawal in Ashville and Durham"), subtitle = "2015", y = "Max Daily Withdrawals", x = "Month") +
+  scale_fill_discrete(name = "Location") +
   scale_x_date(limits = as.Date(c("2015-01-01", "2015-12-01")), 
-    date_breaks = "1 months", date_labels = "%b")
+    date_breaks = "1 months", date_labels = "%b") 
+  
+#Set legend title and labels with a scale function.
   
   
   
@@ -361,7 +358,7 @@ View(the_dfs)
 
 #combining the data frames
 the_df <- bind_rows(the_dfs)
-View(the_df)
+#View(the_df)
 colnames(the_df)
 
 #plotting the data
@@ -374,7 +371,8 @@ ashplot2 <-
        y="Max Daily Withdrawals",
        x="Date") +
   geom_smooth(color = "pink")
- ashplot2
+
+ashplot2
   
   
   
@@ -382,4 +380,4 @@ ashplot2 <-
 ```
 
 >Question: Just by looking at the plot (i.e. not running statistics), does Asheville have a trend in water usage over time?
-Ashville has an upward trend in water usage. 
+Ashville appears to have an upward trend in water usage. 

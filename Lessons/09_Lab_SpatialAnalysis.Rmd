@@ -8,24 +8,34 @@ editor_options:
 ---
 
 ## Objectives
-1. Q&A on A07
 
-2. Q&A on M09 Recordings/Concepts
- * What makes data "spatial"?
- * Why location is important? 
- * Vector data model: points/lines/polygons
- * Spatial data structures: sfg, sfc, sf objects
- * Projections & Coordinate reference systems
- * Visualization techniques
+1.  Q&A on A07
 
-3. Spatial Analysis Exercises
- * Reading data into spatial dataframes
- * Data aggregation
- * Transforming data from one CRS to another
- * Spatial operations: spatial selection and intersection
+2.  Q&A on M09 Recordings/Concepts
 
+-   What makes data "spatial"?
+
+-   Why location is important?
+
+    -location is a common denominator that allows us to combine data sets that would be difficult to combine otherwise.
+
+-   Vector data model: points/lines/polygons
+
+-   Spatial data structures: sfg, sfc, sf objects
+
+-   Projections & Coordinate reference systems
+
+-   Visualization techniques
+
+3.  Spatial Analysis Exercises
+
+-   Reading data into spatial dataframes
+-   Data aggregation
+-   Transforming data from one CRS to another
+-   Spatial operations: spatial selection and intersection
 
 # 1. SET UP
+
 ```{r setup}
 #Examine the working directory
 getwd()
@@ -41,6 +51,7 @@ library(RColorBrewer)
 # 2. ACCESSING SPATIAL DATA
 
 ## 2.1 Read tabular data and convert to spatial features
+
 ```{r convert.tabular.data.to.sf.object}
 #Read our EPA points into a spatial dataframe
 epa_pm25_sites_sf <- read_csv('./Data/Raw/EPAair_PM25_NC2018_raw.csv') %>% 
@@ -107,15 +118,15 @@ mapview(huc8_sf, col.regions='orange')+mapview(HUC8_UN_sf)
 
 ```
 
-
 # 3. WORKING WITH SPATIAL DATA
 
 ## 3.1 Accessing on-line data, attribute joins, & data aggregation
 
 ### EXERCISE 3.1.1: Read an online CSV file into a dataframe
-The URL '<https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv>' links to EPA's EnviroAtlas data on the amount of wind energy estimated at the HUC12 scale. You need to load this data, group by HUC8 (computing the sum wind energy of each HUC12 in a given HUC8) and join with the HUC 8 spatial features dataset. 
 
-* Be sure you read in the `HUC_12` column as a factor so it doesn't default to a numeric column.
+The URL '<https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv>' links to EPA's EnviroAtlas data on the amount of wind energy estimated at the HUC12 scale. You need to load this data, group by HUC8 (computing the sum wind energy of each HUC12 in a given HUC8) and join with the HUC 8 spatial features dataset.
+
+-   Be sure you read in the `HUC_12` column as a factor so it doesn't default to a numeric column.
 
 ```{r}
 #Compute HUC8 wind energy
@@ -135,6 +146,7 @@ The URL '<https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Ene
 ```
 
 ### EXERCISE 3.1.2: Data aggregation
+
 Aggregate the HUC_8 data on the `DWQ_Basin` attribute, computing the sum of the `ACRES` and `SQ_MILES` field and view the result.
 
 ```{r Aggregate the HUC data on an attribute, saving as huc2_sf}
@@ -169,6 +181,7 @@ huc2_utm <-
 ## 3.3 Clipping and intersecting data
 
 ### EXERCISE 3.3.1 Clipping and intersecting data
+
 Select the counties in the "Triangle" (Chatham, Durham, Orange, and Wake). Then select the HUC_8s that touch these counties. And finally, select the portions of the HUC_8s that occur within these counties.
 
 ```{r EXERCISE: Clipping}
@@ -187,4 +200,3 @@ Select the counties in the "Triangle" (Chatham, Durham, Orange, and Wake). Then 
 
 
 ```
-

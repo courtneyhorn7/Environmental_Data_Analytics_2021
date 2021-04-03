@@ -22,7 +22,7 @@ library(lubridate)
 library(ggplot2)
 #because well be working with tables and dates
 
-install.packages("rvest")
+#install.packages("rvest")
 library(rvest)
 
 # Set theme
@@ -126,6 +126,7 @@ avg_withdrawals <- webpage %>%
   html_nodes('.table:nth-child(7) td:nth-child(7) , .table:nth-child(7) td:nth-child(3)') %>%
   html_text()
 avg_withdrawals
+#.table:nth-child(7) td:nth-child(7) , .table:nth-child(7) td:nth-child(3)
 
 max_withdrawals <- webpage %>% 
   html_nodes('.table:nth-child(7) td:nth-child(8) , .table:nth-child(7) td:nth-child(4)') %>%
@@ -151,6 +152,15 @@ df_withdrawals <- df_withdrawals %>%
          Facility_type = !!the_facility_type,
          Date = my(paste(Month,"-",Year)))
 
+#i'm using the little chunk below to try to figure out why were usig the !! bang bang
+df_withdrawals1 <- df_withdrawals %>% 
+  mutate(Registrant = the_registrant,
+         Facility_name = !!the_facility_name,
+         Facility_type = !!the_facility_type,
+         Date = my(paste(Month,"-",Year)))
+
+df_withdrawals1$Registrant
+df_withdrawals$Registrant
 #Plot 
 ggplot(df_withdrawals,aes(x=Date,y=Avg_Withdrawals_mgd)) +
   geom_line() + 
@@ -183,6 +193,7 @@ the_website <- read_html(the_scrape_url)
 
 #Set the element address variables (determined in the previous step)
 the_registrant_tag <- '.table tr:nth-child(1) td:nth-child(2)'
+#.table tr:nth-child(1) td:nth-child(2)
 the_facility_name_tag <- 'tr:nth-child(2) th+ .left:nth-child(2)'
 the_facility_id_tag <- 'tr:nth-child(2) .left~ .left+ td.left'
 the_data_tag <- '.table:nth-child(7) td:nth-child(7) , .table:nth-child(7) td:nth-child(3)'
@@ -255,6 +266,8 @@ scrape.it <- function(the_year, the_facility){
   #Return the dataframe
   return(df_withdrawals)
 }
+
+
 ```
 
 ```{r test.the.function}

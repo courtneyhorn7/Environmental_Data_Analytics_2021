@@ -53,6 +53,9 @@ epa_pm25_sites_sf <- read_csv('./Data/Raw/EPAair_PM25_NC2018_raw.csv') %>%
     maxPM = max(`Daily Mean PM2.5 Concentration`)
     ) %>% 
   st_as_sf(coords = c('SITE_LONGITUDE','SITE_LATITUDE'), crs=4269)
+#we grouped by sites so that we could make it where each location only has one point
+
+View(epa_pm25_sites_sf)
 
 #Inspect the object
 class(epa_pm25_sites_sf)
@@ -82,19 +85,24 @@ colnames(counties_sf)
 
 #
 st_crs(counties_sf) 
+#st_ means a spatial command
 
 
-#
+#are 100 counties
 nrow(counties_sf)
 
 #Reveal the extent of this dataset via the st_bbox() function
 st_bbox(counties_sf)
+#this creates a spatial bounding box around all the features
 
 #View the data
 head(counties_sf)
 
+
 #Plot the data, colored by area of land in each county
 mapView(counties_sf, zcol = "AWATER")
+mapView(counties_sf, zcol = "ALAND")
+#coloring our features on the relative amount of land
 ```
 
 ### 2.2.2 Read in and explore 8-digit HUC watersheds for NC
@@ -103,12 +111,24 @@ mapView(counties_sf, zcol = "AWATER")
 
 ```{r read HUCs shapefile}
 #Read the shapefile into an sf dataframe named "huc8_sf"
-
+getwd()
+huc8_sf <-st_read("./Data/Spatial/NCHUC8.shp")
 
 #Reveal the columns
-
+colnames(huc8_sf)
+class(huc8_sf)
 
 #Check the CRS
+st_crs(huc8_sf)
+#World Geodetic System 1984
+#EPSG 4326
+st_crs(epa_pm25_sites_sf)
+#North American Datum 1983
+#EPSG 4269
+st_crs(counties_sf)
+#North American Datum 1983
+#EPSG 4269
+ #the two data frames do not use the same CRS
 
 
 #Examine some records
@@ -116,7 +136,10 @@ mapView(counties_sf, zcol = "AWATER")
 
 #View the data as a map, colored by the acreage in each
 
+mapView(huc8_sf, zcol = "ACRES")
 
+colnames(huc8_sf)
+unique(huc8_sf$SUBBASIN)
 ```
 
 ### 2.2.3 Challenge!
@@ -126,10 +149,17 @@ mapView(counties_sf, zcol = "AWATER")
 ```{r Select the Upper Neuse HUC 8}
 #Read the shapefile into an sf dataframe
 
+huc8_sf1 <- st_read("./Data/Spatial/NCHUC8.shp")
+
+huc8_sf1 <- filter(huc8_sf, SUBBASIN == "Upper Neuse")
+unique(huc8_sf$SUBBASIN)
 
 
 #Create a map
 
+mapView(huc8_sf, col.regions = 'orange') +
+  mapView(huc8_sf1, col.regions = 'purple')
+#i had to fidget with the layers to get the purple one to go on top
 
 ```
 
@@ -163,6 +193,7 @@ nc_powerplants_sf <- powerplants_sf %>%
 nc_powerplants_sf %>% 
   st_drop_geometry() %>% 
   count(TYPE, sort=TRUE)
+#this code counts the different types
 
 #Most are solar farms; let's remove those
 nc_powerplants_sf <- nc_powerplants_sf %>% 
@@ -193,6 +224,8 @@ svi2018_nc_raw <- read.csv(
   'https://svi.cdc.gov/Documents/Data/2018_SVI_Data/CSV/States_Counties/NorthCarolina_COUNTY.csv',
   colClasses = c('FIPS' = 'factor')) %>% 
   select(COUNTY, FIPS, LOCATION, E_TOTPOP, E_POV, E_MINRTY)
+#FIPS is a character or a variable (both work equally well)
+#the FIPS = factor code tells R to read it as a factor. strings as factors wouldn't work here because R would just think its a number
 
 #Check structure
 str(svi2018_nc_raw)
@@ -206,6 +239,7 @@ counties_sf_join <-  merge(x = counties_sf,
 #Tidyverse version of the join
 counties_sf_join <- counties_sf %>% 
   left_join(svi2018_nc_raw, by = c("GEOID" = "FIPS") )
+#GEOID and FIPS are the two columns being used to join the data sets
 
 #View with mapview
 mapview(counties_sf_join, 
@@ -225,16 +259,32 @@ ggplot() +
 
 ```{r}
 #Compute HUC8 wind energy
-
-
-
+enviro_atlas <- read.csv("https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv")
+colnames(enviro_atlas)
+enviro_atlas <- read.csv("https://raw.githubusercontent.com/ENV859/EnviroAtlasData/main/Wind_Energy.csv", colClasses = c('HUC_12' = 'factor')) %>% 
+  mutate(HUC_8= substr(HUC_12,1,8)) %>% 
+  group_by(HUC_8) %>% 
+  summarize(kWhkm2day = sum(kWhkm2day))
+View(enviro_atlas)
 
 #Join to HUC_8 features
+dim(enviro_atlas)
+mapview(huc8_sf)
 
 
+HUC_8_joined <- left_join(huc8_sf, enviro_atlas)
+
+#or?
+huc_sf_wind <- huc8_sf %>% 
+  left_join(enviro_atlas, by = c('HUC_8', 'HUC_8'))
+View(HUC_8_joined)
+View(huc_sf_wind)
 
 
 #View the outputs
+mapView(huc_sf_wind, zcol = "kWhkm2day")
+#the one above isn't doing the map correctly for some reason, but the one below is
+mapView(HUC_8_joined, zcol = "kWhkm2day")
 
 
 
@@ -252,6 +302,8 @@ state_sf <- counties_sf %>%
   group_by('STATEFP') %>% 
   summarize(ALAND = sum(ALAND))
 
+View(state_sf)
+
 #View the data
 mapview(state_sf)
 ```
@@ -261,16 +313,22 @@ mapview(state_sf)
 ```{r Aggregate the HUC data on an attribute, saving as huc2_sf}
 #List the unique values in the DWQ_Basin field
 
-
+mapview(huc8_sf)
+#so huc8_sf is the HUC_8 data were talking about
+colnames(huc8_sf)
 
 
 #Summarize on DWQ Basin value
-
+huc2_sf <- huc8_sf %>%
+  group_by('DWQ_Basin') %>% 
+  summarize(total_acres = sum(ACRES), total_miles = sum(SQ_MILES))
+View(huc2_sf)
 
 
 
   
 #Map the data
+mapview(huc2_sf)
 
 ```
 
@@ -311,6 +369,9 @@ In the exercise below, we'll subset one of the HUCs (Upper Neuese), and explore 
 
 ```{r spatial.overlap.exercises}
 #Clip the HUC2 data set by the NC State boundary dataset
+huc2_utm
+colnames(huc2_utm)
+
 neuse_sf <- huc2_utm %>% 
   filter(DWQ_Basin == "Neuse")
 
@@ -325,6 +386,7 @@ myMap
 
 #Select intersecting counties using matrix subsetting
 neuse_intersect_1 <- counties_sf_utm[neuse_sf,]
+#this figures out which counties intersect this neuse shape
 
 #Select intersecting counties using the `filter()` command
 neuse_intersect_2 <- counties_sf_utm %>% 

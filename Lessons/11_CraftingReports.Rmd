@@ -82,9 +82,9 @@ Create a table below that details the example datasets we have been using in cla
 Dataset_names | Dataset_information
 --------------|---------------------
               |
-ECOTOX_Neonicotinoids | Chemical information
-EPAair_03_NC | Air pollution information
-NIWO Litter | blah
+ECOTOX_Neonicotinoids_Insects_Raw.csv | Data on neocotinoids and their effects on insects
+EPAair_03_NC_2018(and2019).csv | Data from Air quality monitoring of and ozone
+NEON_NIWO_Litter_massdata_Y-m_raw.csv | Data on Litterfall and Fine Woody Debris Sampling Data
 
 
 
@@ -96,8 +96,6 @@ Create an R chunk below that installs the package `knitr`. Instead of commenting
 
 ```{r install knitr, eval = FALSE}
 install.packages("knitr")
-
-
 ```
 
 
@@ -106,27 +104,31 @@ install.packages("knitr")
 
 Create an R chunk below called "setup" that checks your working directory, loads the packages `tidyverse`, `lubridate`, and `knitr`, and sets a ggplot theme. Remember that you need to disable R throwing a message, which contains a check mark that cannot be knitted.
 
-```{r setup}
-knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```{r setup, warning = FALSE, message = FALSE}
 getwd()
 library(tidyverse)
 library(lubridate)
 library(knitr)
+library(rvest)
+library(ggplot2)
 
-theme_today <- theme_gray()
+
+theme_today <- theme_gray(base_size = 14) +
+  theme(axis.text = element_text(color = "black"),
+        legend.position = "top")
 
 ```
 
 
 Load the NTL-LTER_Lake_Nutrients_Raw dataset, display the head of the dataset, and set the date column to a date format.
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE}
+```{r Loading the Data, echo=FALSE, message=FALSE, warning=FALSE}
 Lake_nutrients_data <- read.csv("../Data/Raw/NTL-LTER_Lake_Nutrients_Raw.csv", stringsAsFactors = TRUE)
 head(Lake_nutrients_data)
-colnames(Lake_nutrients_data)
-class(Lake_nutrients_data$sampledat)
-Lake_nutrients_data$sampledate <-as.Date(Lake_nutrients_data$sampledate, "")
-?as.Date
+#class(Lake_nutrients_data$sampledat)
+Lake_nutrients_data$sampledate <-as.Date(Lake_nutrients_data$sampledate, format = "%m/%d/%y")
+class(Lake_nutrients_data$sampledate)
+
 
 ```
 
@@ -142,21 +144,23 @@ Create an R chunk below to create a processed dataset do the following operation
 -   Include only surface samples (depth = 0 m)
 -   Drop rows with missing data
 
-```{r}
+```{r Creating a Processed Data Set, message=FALSE, warning=FALSE}
 colnames(Lake_nutrients_data)
 Lake_nutrients_data_subset <- select(Lake_nutrients_data, lakename:sampledate, depth:po4) %>% 
     filter(depth == 0) %>% 
     drop_na()
-colnames(Lake_nutrients_data_subset)
-View(Lake_nutrients_data_subset)
-summary(Lake_nutrients_data_subset)
+
+#View(Lake_nutrients_data_subset)
 
 ```
 
 
 Create a second R chunk to create a summary dataset with the mean, minimum, maximum, and standard deviation of total nitrogen concentrations for each lake. Create a second summary dataset that is identical except that it evaluates total phosphorus. Customize the chunk options such that the code is run but not displayed in the final document.
 
-```{r, echo=FALSE}
+```{r summary data sets, echo=FALSE}
+colnames(Lake_nutrients_data_subset)
+View(Lake_nutrients_data_subset)
+
 Lake_nutrients_data_subset_summary_N <- 
     Lake_nutrients_data_subset %>% 
     group_by(lakename) %>% 
@@ -164,34 +168,84 @@ Lake_nutrients_data_subset_summary_N <-
               minimum_N = min(tn_ug),
               max_N = max(tn_ug),
               sd_N = sd(tn_ug))
+
     
 Lake_nutrients_data_subset_summary_Phos <- 
     Lake_nutrients_data_subset %>% 
     group_by(lakename) %>% 
-    summarise(total_phos = sum(tp_ug), 
-              minimum_phos = min(tp_ug),
+    summarise(minimum_phos = min(tp_ug),
               max_phos = max(tp_ug),
               sd_phos = sd(tp_ug))
-View(Lake_nutrients_data_subset_summary_N)
-View(Lake_nutrients_data_subset_summary_Phos)
+
+
 ```
 
 
 Create a third R chunk that uses the function `kable` in the knitr package to display two tables: one for the summary dataframe for total N and one for the summary dataframe of total P. Use the `caption = " "` code within that function to title your tables. Customize the chunk options such that the final table is displayed but not the code used to generate the table.
 
-```{r}
-?kable
-kable(Lake_nutrients_data_subset_summary_N, caption = "Nitrogen Summary Table")
-kable(Lake_nutrients_data_subset_summary_Phos, caption = "Phosphorus Summary Table")
+```{r tables, message=FALSE, warning=FALSE, echo=FALSE}
+
+Lake_nutrients_data_subset_summary_N_named <- Lake_nutrients_data_subset_summary_N
+colnames(Lake_nutrients_data_subset_summary_N_named) <- c("Lake Name", "Total Nitrogen", "Mean Nitrogen", "Minimum Nitrogen", "Maximum Nitrogen", "Standard Deviation Nitrogen") 
+Lake_nutrients_data_subset_summary_Phos_named <- Lake_nutrients_data_subset_summary_Phos
+colnames(Lake_nutrients_data_subset_summary_Phos_named) <- c("Lake Name", "Total Phosphorus", "Mean Phosphorus", "Minimum Phosphorus", "Maximum Phosphorus", "Standard Deviation Phosphorus")
+kable(Lake_nutrients_data_subset_summary_N_named, caption = "Nitrogen Summary Table")
+kable(Lake_nutrients_data_subset_summary_Phos_named, caption = "Phosphorus Summary Table")
 ```
 
 
 Create a fourth and fifth R chunk that generates two plots (one in each chunk): one for total N over time with different colors for each lake, and one with the same setup but for total P. Decide which geom option will be appropriate for your purpose, and select a color palette that is visually pleasing and accessible. Customize the chunk options such that the final figures are displayed but not the code used to generate the figures. In addition, customize the chunk options such that the figures are aligned on the left side of the page. Lastly, add a fig.cap chunk option to add a caption (title) to your plot that will display underneath the figure.
 
-```{r}
-ggplot(data=Lake_nutrients_data_subset_summary_N, aes(x = ))
+Nitrogen Plot
+```{r Nitrogen Plot, echo=FALSE, fig.align='left', fig.cap="Total Nitrogen within lakes (1991 - 2000)", message=FALSE}
+#total N over time with different colors for each lake
+#colnames(Lake_nutrients_data_subset)
+#I wonder if I will need to put date as a factor....
+#Lake_nutrients_data_subset_summary_N$total_N
+#so I will be plotting a continuous numeric value over time
+
+#ggplot(data=Lake_nutrients_data_subset, aes(x = sampledate, y = tn_ug, color = lakename)) +
+  #geom_point() +
+  #labs(x = "Year", y = "Total Nitrogen (tn_ug)") +
+  #scales_x_continuous(breaks = c(1:8))
+
+Nitrogen_plot <- ggplot(data=Lake_nutrients_data_subset, aes(x = sampledate, y = tn_ug, color = lakename)) +
+  geom_point() +
+  scale_x_continuous(breaks = c(1:8)) + 
+  scale_x_date(date_labels = "%Y", breaks = "year") +
+  labs(x = "Year", y = "Total Nitrogen (tn_ug)")
+
+print(Nitrogen_plot)  
+
+#max_daily_wd_plot2 <- 
+  #ggplot(daily_withdrawals_Df7, aes(x=Month, y=Max_Daily_Withdrawals)) +
+  #geom_point() +
+ # geom_line(color = "blue") + 
+  #scale_x_continuous(breaks = c(1:12),
+  #labs(title = paste("2019 Water usage data for Durham"),
+      #y="Withdrawal (mgd)",
+     # x="Date")) 
+  
+#min(Lake_nutrients_data_subset$sampledate)
+#max(Lake_nutrients_data_subset$sampledate)
+#8 years... so maybe 8 breaks?
+
+##errrg how to I make the figure title be in the center???
+
 
 ```
+
+Phosphorus Plot
+```{r echo=FALSE, fig.align='left', fig.cap="Total Phosphorus within lakes (1991 - 2000)", message=FALSE, warning=FALSE}
+Phosphorus_plot <- ggplot(data=Lake_nutrients_data_subset, aes(x = sampledate, y = tp_ug, color = lakename))+
+  geom_point() +
+  scale_x_continuous(breaks = c(1:8)) + 
+  scale_x_date(date_labels = "%Y", breaks = "year") +
+  labs(x = "Year", y = "Total Phosphorus (tp_ug)")
+
+print(Phosphorus_plot)  
+```
+
 
 
 
@@ -199,6 +253,20 @@ ggplot(data=Lake_nutrients_data_subset_summary_N, aes(x = ))
 
 Write a paragraph describing your findings from the R coding challenge above. This should be geared toward an educated audience but one that is not necessarily familiar with the dataset. Then insert a horizontal rule below the paragraph. Below the horizontal rule, write another paragraph describing the next steps you might take in analyzing this dataset. What questions might you be able to answer, and what analyses would you conduct to answer those questions?
 
+I noticed from a visual inspection of my plots that the total nitrogen and phosphorus concentrations appear to differ between the lakes and the years. One thing that stood out to me was that there were high values of total Nitrogen in five of the lakes halfway through the year in 1996. These data points appear to be outliers since they stand out from the rest of the data points. Another noticeable aspect of the graphs is how East Long Lake has high values of total nitrogen and phosphorus in comparison to the other lakes each year and Tuesday Lake appears has relatively low Nitrogen values every year. 
+
+
+
+
+
+
+
+***
+
+
+
+
+One of my next steps in analysis of the data would be looking into possible causes of the high nitrogen concentrations in 1996. I predict that a stochastic environmental phenomena may have caused the unusually high nitrogen concentrations in 5 of the lakes that year. I would also like to conduct anovas to analyze whether the mean nitrogen and phosphorus concentrations of the various lakes differ from each other significantly. I hypothesize that the mean nitrogen concentrations of East Long Lake and Tuesday Lake differ significantly.
 
 ## KNIT YOUR PDF
 When you have completed the above steps, try knitting your PDF to see if all of the formatting options you specified turned out as planned. This may take some troubleshooting.

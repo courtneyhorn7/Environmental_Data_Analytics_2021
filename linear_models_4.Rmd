@@ -1,0 +1,63 @@
+---
+title: "linear_models_4"
+author: "Courtney Horn"
+date: "4/22/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(lme4)
+require(lmerTest)
+library(tidyverse)
+library(corrplot)
+```
+```{r exploring variables of interest for Generalized Linear Models}
+traitdata_subset <- select(trait_data2, logFruitLength:logSLA, Predicted, slope, aspect, lat, long)
+View(traitdata_subset)
+class(traitdata_subset$roughness)
+lemur_density_Corr <- cor(traitdata_subset)
+corrplot(lemur_density_Corr, method = "ellipse")
+#the correlation plot matrix indicates that there are slight positive correlations between our response variable (Predicted) and multiple explanatory variables. There appear to be weak positive correlations between Predicted and logFruitLength, logFruitWidth, logSeedLength, logSeedWidth, logNitrogen, logSLA, slope, and long. The ones that appear to have the strongest positive correlations are logFruitLength, logNitrogen, slope, and longitude.
+#The correlation plot matrix further indicates weak negative correlations between Predicted and logProtein and logNitrogen.
+```
+```{r exploring relationships between variables with ggplots}
+#I made this plot to visually explore the relationship between some of fruit trait variables that stood out in the correlation plot matrix
+Fruit_trait_plot <- ggplot(traitdata_subset, aes(x = logFruitLength, y = Predicted, color = logNitrogen)) +
+  geom_point()
+print(Fruit_trait_plot)
+#This graph doesn't really display a relationship between logFruitLength and Predicted. It does indicate a relationship between logFruitLength and logNitrogen. There also are groupings of fruit lengths.
+
+
+```
+
+
+
+```{r creating linear models with species and transect site as random variables}
+#This is the full linear model with all of the variables of interest and Species and Transect_Site as random variables
+#I decided not to use variable interactions, because they kept freezing my computer
+lmer_Species_TS1 <- lmer(data = trait_data2, Predicted ~ logSeedLength + logNitrogen + lat + logSeedWidth + logTannins + roughness + long + logSugar + logSLA + slope + Site + logFruitLength + logFat + aspect + logFruitWidth + logProtein + (1|Species) + (1|Transect_Site))
+summary(lmer_Species_TS1)
+#I'm unsure if this model is significant because the Pr(>|t|) for the intercept = 0.97573  
+```
+
+
+
+```{r checking GLM assumptions of the initial model, echo=FALSE}
+#GLMs are based on the assumptions that the data residuals approximate a normal distribution
+#My linear models have both continuous and categorical explanatory variables, so there is an assumption for my data that the variance of the response variable is equal among the groups
+par(mfrow = c(2,2), mar=c(4,4,4,4))
+plot(lmer_Species_TS1)
+par(mfrow = c(1,1))
+#This is a residuals versus fitted plot
+#there appears to be a balance of positive and negative residuals, which is a good sign
+#However, there appears to be a strange pattern of three seperate lines with negative slopes
+```
+```{r}
+traitdata_subset <- select(trait_data2, logFruitLength:logSLA, Predicted, slope, aspect, lat, long)
+View(traitdata_subset)
+class(traitdata_subset$roughness)
+lemur_density_Corr <- cor(traitdata_subset)
+corrplot(lemur_density_Corr, method = "ellipse")
+```
+
